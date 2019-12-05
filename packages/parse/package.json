@@ -1,0 +1,32 @@
+{
+  "name": "@tson/parse",
+  "version": "0.1.0",
+  "description": "TSON (Terse Single Object Notation) parser",
+  "main": "dist/parse.js",
+  "module": "dist/parse.esm.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devdigital/tson.git",
+    "directory": "packages/parse"
+  },
+  "homepage": "https://github.com/devdigital/tson/tree/master/packages/parse#readme",
+  "scripts": {
+    "prepare": "microbundle --no-compress -o dist",
+    "watch": "microbundle watch --no-compress -o dist",
+    "test": "jest",
+    "test:watch": "jest --watchAll"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@utilz/types": "^0.1.6"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "babel-jest": "^24.9.0",
+    "jest": "^24.9.0"
+  }
+}
