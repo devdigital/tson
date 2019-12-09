@@ -21,7 +21,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@utilz/types": "^0.1.6"
+    "@utilz/deepmerge": "^0.1.7",
+    "@utilz/types": "^0.1.6",
+    "@xstate/fsm": "^1.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.7.4",
