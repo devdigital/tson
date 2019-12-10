@@ -14,15 +14,15 @@ const type = char => {
   }
 
   if (char === "'") {
-    return "'"
+    return 'apostrophe'
   }
 
   if (char === '{') {
-    return '{'
+    return 'left-brace'
   }
 
   if (char === '}') {
-    return '}'
+    return 'right-brace'
   }
 
   if (isWhitespace(char)) {
@@ -64,18 +64,25 @@ const lexer = (text, position) => {
   do {
     switch (state) {
       case 'start':
-        switch (type(charAt(position))) {
+        const charType = type(charAt(position))
+        switch (charType) {
           case 'whitespace':
             result.type = 'whitespace'
             result.position.start = position
             state = 'whitespace'
             break
-          case ':':
+          case 'colon':
+          case 'left-brace':
+          case 'right-brace':
             return {
-              type: 'colon',
-              value: ':',
+              type: charType,
+              value: charAt(position),
               position: { start: position, end: position },
             }
+          case 'apostrophe':
+            result.type = 'string'
+            state = 'string'
+            break
         }
         break
       case 'whitespace':
@@ -86,11 +93,11 @@ const lexer = (text, position) => {
           return deepmerge(result, { position: { end: position - 1 } })
         }
         break
-      case 'text':
+      case 'string':
         state = 'done'
         break
     }
-  } while (state !== 'done')
+  } while (state !== 'done' && position < text.length)
 }
 
 export default lexer
