@@ -134,13 +134,35 @@ describe('lexer', () => {
     })
   })
 
-  it('returns number', () => {
+  it('returns number for number string', () => {
     expect(lexer('2.6', 0)).toEqual({
       type: 'number',
       value: 2.6,
       position: {
         start: 0,
         end: 2,
+      },
+    })
+  })
+
+  it('returns false boolean for boolean string', () => {
+    expect(lexer('  false:', 2)).toEqual({
+      type: 'boolean',
+      value: false,
+      position: {
+        start: 2,
+        end: 6,
+      },
+    })
+  })
+
+  it('returns true boolean for boolean string', () => {
+    expect(lexer('  true:', 2)).toEqual({
+      type: 'boolean',
+      value: true,
+      position: {
+        start: 2,
+        end: 5,
       },
     })
   })
@@ -156,14 +178,42 @@ describe('lexer', () => {
     })
   })
 
-  // it('returns string for empty quoted string', () => {
-  //   expect(lexer("''", 0)).toEqual({
-  //     type: 'string-quoted',
-  //     value: '',
-  //     position: {
-  //       start: 0,
-  //       end: 1,
-  //     },
-  //   })
-  // })
+  it('returns quoted string for empty quoted string', () => {
+    expect(lexer("''", 0)).toEqual({
+      type: 'string-quoted',
+      value: "''",
+      position: {
+        start: 0,
+        end: 1,
+      },
+    })
+  })
+
+  it('returns quoted string for quoted string', () => {
+    expect(lexer("'foo'", 0)).toEqual({
+      type: 'string-quoted',
+      value: "'foo'",
+      position: {
+        start: 0,
+        end: 4,
+      },
+    })
+  })
+
+  it('returns quoted string for quoted string containing special characters', () => {
+    expect(lexer("'foo:  fsdf {  } .'", 0)).toEqual({
+      type: 'string-quoted',
+      value: "'foo:  fsdf {  } .'",
+      position: {
+        start: 0,
+        end: 18,
+      },
+    })
+  })
+
+  it('throws exception for non matching apostrophe', () => {
+    expect(() => lexer("  'foo :", 2)).toThrow(
+      'Missing ending quotation started at position 2'
+    )
+  })
 })

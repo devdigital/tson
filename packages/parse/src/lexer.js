@@ -62,7 +62,6 @@ const fromText = (result, position) => {
   }
 
   if (isNumeric(result.value)) {
-    console.log(result.value)
     return deepmerge(result, {
       type: 'number',
       value: parseFloat(result.value),
@@ -139,6 +138,7 @@ const lexer = (text, position) => {
             }
           case 'apostrophe':
             result.position.start = position
+            result.value += charAt(position)
             result.type = 'string-quoted'
             state = 'text-quoted'
             break
@@ -189,6 +189,10 @@ const lexer = (text, position) => {
         switch (type(charAt(position))) {
           case 'text':
           case 'period':
+          case 'colon':
+          case 'left-brace':
+          case 'right-brace':
+          case 'whitespace':
             result.value += charAt(position)
 
             if (isLast(position)) {
@@ -199,7 +203,10 @@ const lexer = (text, position) => {
 
             break
           case 'apostrophe':
+            result.value += charAt(position)
+            return deepmerge(result, { position: { end: position } })
         }
+        break
       default:
         throw new Error(`Unexpected state '${state}'.`)
     }
