@@ -71,8 +71,6 @@ const fromText = (result, position) => {
   }
 
   return deepmerge(result, {
-    type: 'string',
-    value: result.value,
     position: { end: position },
   })
 }
@@ -127,6 +125,7 @@ const lexer = (text, position) => {
           case 'whitespace':
             result.type = 'whitespace'
             result.position.start = position
+            result.value += charAt(position)
             state = 'whitespace'
             break
           case 'colon':
@@ -139,13 +138,18 @@ const lexer = (text, position) => {
               position: { start: position, end: position },
             }
           case 'apostrophe':
-            result.type = 'string'
-            state = 'apostrophe'
+            result.position.start = position
+            result.type = 'string-quoted'
+            state = 'text-quoted'
             break
           case 'text':
-            result.type = 'unquoted-text'
             result.position.start = position
-            state = 'unquoted-text'
+            result.value += charAt(position)
+            result.type = 'string-unquoted'
+            state = 'text-unquoted'
+            break
+          default:
+            throw new Error(`Unexpected character type '${charType}'.`)
         }
         break
       case 'whitespace':
@@ -155,24 +159,21 @@ const lexer = (text, position) => {
           if (isLast(position)) {
             return deepmerge(result, { position: { end: position } })
           }
-
-          position++
         } else {
           return deepmerge(result, { position: { end: position - 1 } })
         }
         break
-      case 'unquoted-text':
-        switch (type(charAt(position))) {
+      case 'text-unquoted':
+        const characterType = type(charAt(position))
+        switch (characterType) {
           case 'text':
           case 'period':
             result.value += charAt(position)
-            result.type = 'text'
 
             if (isLast(position)) {
               return fromText(result, position)
             }
 
-            position++
             break
           case 'apostrophe':
           case 'colon':
@@ -180,10 +181,31 @@ const lexer = (text, position) => {
           case 'right-brace':
           case 'whitespace':
             return fromText(result, position - 1)
+          default:
+            throw new Error(`Unexpected character type '${characterType}'.`)
         }
         break
+      case 'text-quoted':
+        switch (type(charAt(position))) {
+          case 'text':
+          case 'period':
+            result.value += charAt(position)
+
+            if (isLast(position)) {
+              throw new Error(
+                `Missing ending quotation started at position ${result.position.start}.`
+              )
+            }
+
+            break
+          case 'apostrophe':
+        }
+      default:
+        throw new Error(`Unexpected state '${state}'.`)
     }
-  } while (state !== 'done' && position < text.length)
+
+    position++
+  } while (true)
 }
 
 export default lexer

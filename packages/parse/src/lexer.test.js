@@ -89,7 +89,7 @@ describe('lexer', () => {
 
   it('returns unquoted string', () => {
     expect(lexer('  foo', 2)).toEqual({
-      type: 'string',
+      type: 'string-unquoted',
       value: 'foo',
       position: {
         start: 2,
@@ -102,7 +102,7 @@ describe('lexer', () => {
     'returns string with trailing %s',
     trailing => {
       expect(lexer(`  foo${trailing}`, 2)).toEqual({
-        type: 'string',
+        type: 'string-unquoted',
         value: 'foo',
         position: {
           start: 2,
@@ -114,7 +114,7 @@ describe('lexer', () => {
 
   it('returns period included in string', () => {
     expect(lexer('  foo.', 2)).toEqual({
-      type: 'string',
+      type: 'string-unquoted',
       value: 'foo.',
       position: {
         start: 2,
@@ -125,7 +125,7 @@ describe('lexer', () => {
 
   it('returns string with trailing whitespace', () => {
     expect(lexer('  foo  ', 2)).toEqual({
-      type: 'string',
+      type: 'string-unquoted',
       value: 'foo',
       position: {
         start: 2,
@@ -147,7 +147,7 @@ describe('lexer', () => {
 
   it('returns string for number with trailing period', () => {
     expect(lexer('2.6.', 0)).toEqual({
-      type: 'string',
+      type: 'string-unquoted',
       value: '2.6.',
       position: {
         start: 0,
@@ -155,4 +155,15 @@ describe('lexer', () => {
       },
     })
   })
+
+  // it('returns string for empty quoted string', () => {
+  //   expect(lexer("''", 0)).toEqual({
+  //     type: 'string-quoted',
+  //     value: '',
+  //     position: {
+  //       start: 0,
+  //       end: 1,
+  //     },
+  //   })
+  // })
 })
