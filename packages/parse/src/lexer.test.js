@@ -43,6 +43,17 @@ describe('lexer', () => {
     })
   })
 
+  it('returns whitespace for single character', () => {
+    expect(lexer(' ', 0)).toEqual({
+      type: 'whitespace',
+      value: ' ',
+      position: {
+        start: 0,
+        end: 0,
+      },
+    })
+  })
+
   it('returns whitespace token when text follows', () => {
     expect(lexer('  text', 0)).toEqual({
       type: 'whitespace',
@@ -98,6 +109,17 @@ describe('lexer', () => {
     })
   })
 
+  it('returns unquoted string for single character', () => {
+    expect(lexer('f', 0)).toEqual({
+      type: 'string-unquoted',
+      value: 'f',
+      position: {
+        start: 0,
+        end: 0,
+      },
+    })
+  })
+
   each([[':'], ['{'], ['}'], ["'"]]).it(
     'returns string with trailing %s',
     trailing => {
@@ -107,6 +129,41 @@ describe('lexer', () => {
         position: {
           start: 2,
           end: 4,
+        },
+      })
+    }
+  )
+
+  each([
+    [':', 'colon'],
+    ['{', 'left-brace'],
+    ['}', 'right-brace'],
+    ['.', 'period'],
+  ]).it('special character %s returns type %s', (char, charType) => {
+    expect(lexer(char, 0)).toEqual({
+      type: charType,
+      value: char,
+      position: {
+        start: 0,
+        end: 0,
+      },
+    })
+  })
+
+  each([
+    [':', 'colon'],
+    ['{', 'left-brace'],
+    ['}', 'right-brace'],
+    ['.', 'period'],
+  ]).it(
+    'special character %s prefixing string returns type %s',
+    (char, charType) => {
+      expect(lexer(`${char}foo`, 0)).toEqual({
+        type: charType,
+        value: char,
+        position: {
+          start: 0,
+          end: 0,
         },
       })
     }
@@ -141,6 +198,17 @@ describe('lexer', () => {
       position: {
         start: 0,
         end: 2,
+      },
+    })
+  })
+
+  it('returns number for single character', () => {
+    expect(lexer('6', 0)).toEqual({
+      type: 'number',
+      value: 6,
+      position: {
+        start: 0,
+        end: 0,
       },
     })
   })
@@ -214,6 +282,12 @@ describe('lexer', () => {
   it('throws exception for non matching apostrophe', () => {
     expect(() => lexer("  'foo :", 2)).toThrow(
       'Missing ending quotation started at position 2'
+    )
+  })
+
+  it('throws exception for single apostrophe', () => {
+    expect(() => lexer("'", 0)).toThrow(
+      'Missing ending quotation started at position 0'
     )
   })
 })

@@ -1,5 +1,5 @@
 import { isString } from '@utilz/types'
-import { createMachine, interpret, assign } from '@xstate/fsm'
+// import { createMachine, interpret, assign } from '@xstate/fsm'
 
 // const process = async (context, event) => {
 //   console.log(context)
@@ -50,9 +50,7 @@ import { createMachine, interpret, assign } from '@xstate/fsm'
 //   service.start()
 // }
 
-const parseInternal = text => {
-  
-}
+const parseInternal = text => {}
 
 const parse = value => {
   if (value === undefined || value === null) {

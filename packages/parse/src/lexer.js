@@ -74,6 +74,9 @@ const fromText = (result, position) => {
   })
 }
 
+const nonMatchingApostropheError = position =>
+  new Error(`Missing ending quotation started at position ${position}.`)
+
 const lexer = (text, position) => {
   if (!text) {
     throw new Error('No text specified.')
@@ -125,6 +128,11 @@ const lexer = (text, position) => {
             result.type = 'whitespace'
             result.position.start = position
             result.value += charAt(position)
+
+            if (isLast(position)) {
+              return deepmerge(result, { position: { end: position } })
+            }
+
             state = 'whitespace'
             break
           case 'colon':
@@ -140,12 +148,22 @@ const lexer = (text, position) => {
             result.position.start = position
             result.value += charAt(position)
             result.type = 'string-quoted'
+
+            if (isLast(position)) {
+              throw new nonMatchingApostropheError(result.position.start)
+            }
+
             state = 'text-quoted'
             break
           case 'text':
             result.position.start = position
             result.value += charAt(position)
             result.type = 'string-unquoted'
+
+            if (isLast(position)) {
+              return fromText(result, position)
+            }
+
             state = 'text-unquoted'
             break
           default:
@@ -196,9 +214,7 @@ const lexer = (text, position) => {
             result.value += charAt(position)
 
             if (isLast(position)) {
-              throw new Error(
-                `Missing ending quotation started at position ${result.position.start}.`
-              )
+              throw nonMatchingApostropheError(result.position.start)
             }
 
             break
