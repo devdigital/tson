@@ -10,7 +10,11 @@ export const isWhitespace = char => {
 
 const type = char => {
   if (char === ':') {
-    return ':'
+    return 'colon'
+  }
+
+  if (char === '.') {
+    return 'period'
   }
 
   if (char === "'") {
@@ -32,6 +36,47 @@ const type = char => {
   return 'text'
 }
 
+const isNumeric = value => {
+  if (!value) {
+    return false
+  }
+
+  return !isNaN(parseFloat(value)) && isFinite(value)
+}
+
+const fromText = (result, position) => {
+  if (result.value === 'true') {
+    return deepmerge(result, {
+      type: 'boolean',
+      value: true,
+      position: { end: position },
+    })
+  }
+
+  if (result.value === 'false') {
+    return deepmerge(result, {
+      type: 'boolean',
+      value: false,
+      position: { end: position },
+    })
+  }
+
+  if (isNumeric(result.value)) {
+    console.log(result.value)
+    return deepmerge(result, {
+      type: 'number',
+      value: parseFloat(result.value),
+      position: { end: position },
+    })
+  }
+
+  return deepmerge(result, {
+    type: 'string',
+    value: result.value,
+    position: { end: position },
+  })
+}
+
 const lexer = (text, position) => {
   if (!text) {
     throw new Error('No text specified.')
@@ -49,7 +94,19 @@ const lexer = (text, position) => {
     throw new Error('Invalid position.')
   }
 
-  const charAt = pos => text[pos]
+  const charAt = pos => {
+    if (pos < 0) {
+      throw new Error(`Invalid position '${pos}'.`)
+    }
+
+    if (pos > text.length - 1) {
+      throw new Error(`Invalid position '${pos}'.`)
+    }
+
+    return text[pos]
+  }
+
+  const isLast = pos => pos === text.length - 1
 
   let state = 'start'
   let result = {
@@ -65,6 +122,7 @@ const lexer = (text, position) => {
     switch (state) {
       case 'start':
         const charType = type(charAt(position))
+
         switch (charType) {
           case 'whitespace':
             result.type = 'whitespace'
@@ -74,6 +132,7 @@ const lexer = (text, position) => {
           case 'colon':
           case 'left-brace':
           case 'right-brace':
+          case 'period':
             return {
               type: charType,
               value: charAt(position),
@@ -81,20 +140,47 @@ const lexer = (text, position) => {
             }
           case 'apostrophe':
             result.type = 'string'
-            state = 'string'
+            state = 'apostrophe'
             break
+          case 'text':
+            result.type = 'unquoted-text'
+            result.position.start = position
+            state = 'unquoted-text'
         }
         break
       case 'whitespace':
         if (isWhitespace(charAt(position))) {
           result.value += charAt(position)
+
+          if (isLast(position)) {
+            return deepmerge(result, { position: { end: position } })
+          }
+
           position++
         } else {
           return deepmerge(result, { position: { end: position - 1 } })
         }
         break
-      case 'string':
-        state = 'done'
+      case 'unquoted-text':
+        switch (type(charAt(position))) {
+          case 'text':
+          case 'period':
+            result.value += charAt(position)
+            result.type = 'text'
+
+            if (isLast(position)) {
+              return fromText(result, position)
+            }
+
+            position++
+            break
+          case 'apostrophe':
+          case 'colon':
+          case 'left-brace':
+          case 'right-brace':
+          case 'whitespace':
+            return fromText(result, position - 1)
+        }
         break
     }
   } while (state !== 'done' && position < text.length)

@@ -2,6 +2,7 @@
   "name": "@tson/parse",
   "version": "0.1.0",
   "description": "TSON (Terse Single Object Notation) parser",
+  "private": true,
   "main": "dist/parse.js",
   "module": "dist/parse.esm.js",
   "license": "MIT",
@@ -29,6 +30,7 @@
     "@babel/core": "^7.7.4",
     "@babel/preset-env": "^7.7.4",
     "babel-jest": "^24.9.0",
-    "jest": "^24.9.0"
+    "jest": "^24.9.0",
+    "jest-each": "^24.9.0"
   }
 }
