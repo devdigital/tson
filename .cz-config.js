@@ -25,6 +25,6 @@ module.exports = {
     { value: 'revert', name: 'revert: revert a commit' },
     { value: 'wip', name: 'wip: work in progress' },
   ],
-  scopes: ['all', 'docs', 'build', 'parse'],
+  scopes: ['all', 'docs', 'build', 'parser'],
   allowCustomScopes: false,
 }

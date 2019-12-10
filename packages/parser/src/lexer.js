@@ -1,12 +1,8 @@
 import deepmerge from '@utilz/deepmerge'
-
-export const isWhitespace = char => {
-  if (char === undefined || char === null) {
-    throw new Error('No character specified.')
-  }
-
-  return char.length > 0 && !/[^\s]/.test(char)
-}
+import isWhitespace from './utils/is-whitespace'
+import isNumeric from './utils/is-numeric'
+import isLastCharacter from './utils/is-last-character'
+import getCharacter from './utils/get-character'
 
 const type = char => {
   if (char === ':') {
@@ -34,14 +30,6 @@ const type = char => {
   }
 
   return 'text'
-}
-
-const isNumeric = value => {
-  if (!value) {
-    return false
-  }
-
-  return !isNaN(parseFloat(value)) && isFinite(value)
 }
 
 const fromText = (result, position) => {
@@ -94,20 +82,6 @@ const lexer = (text, position) => {
     throw new Error('Invalid position.')
   }
 
-  const charAt = pos => {
-    if (pos < 0) {
-      throw new Error(`Invalid position '${pos}'.`)
-    }
-
-    if (pos > text.length - 1) {
-      throw new Error(`Invalid position '${pos}'.`)
-    }
-
-    return text[pos]
-  }
-
-  const isLast = pos => pos === text.length - 1
-
   let state = 'start'
   let result = {
     type: null,
@@ -117,6 +91,9 @@ const lexer = (text, position) => {
       end: null,
     },
   }
+
+  const charAt = getCharacter(text)
+  const isLast = isLastCharacter(text)
 
   do {
     switch (state) {
