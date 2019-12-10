@@ -25,6 +25,18 @@ const type = char => {
     return 'right-brace'
   }
 
+  if (char === '[') {
+    return 'left-bracket'
+  }
+
+  if (char === ']') {
+    return 'right-bracket'
+  }
+
+  if (char === ',') {
+    return 'comma'
+  }
+
   if (isWhitespace(char)) {
     return 'whitespace'
   }
@@ -116,6 +128,9 @@ const lexer = (text, position) => {
           case 'left-brace':
           case 'right-brace':
           case 'period':
+          case 'left-bracket':
+          case 'right-bracket':
+          case 'comma':
             return {
               type: charType,
               value: charAt(position),
@@ -175,6 +190,9 @@ const lexer = (text, position) => {
           case 'left-brace':
           case 'right-brace':
           case 'whitespace':
+          case 'comma':
+          case 'left-bracket':
+          case 'right-bracket':
             return fromText(result, position - 1)
           default:
             throw new Error(`Unexpected character type '${characterType}'.`)
@@ -188,6 +206,9 @@ const lexer = (text, position) => {
           case 'left-brace':
           case 'right-brace':
           case 'whitespace':
+          case 'comma':
+          case 'left-bracket':
+          case 'right-bracket':
             result.value += charAt(position)
 
             if (isLast(position)) {

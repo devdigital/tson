@@ -120,28 +120,31 @@ describe('lexer', () => {
     }
   )
 
-  each([
-    [':', 'colon'],
-    ['{', 'left-brace'],
-    ['}', 'right-brace'],
-    ['.', 'period'],
-  ]).it('special character %s returns type %s', (char, charType) => {
-    expect(lexer(char, 0)).toEqual({
-      type: charType,
-      value: char,
-      position: {
-        start: 0,
-        end: 0,
-      },
-    })
-  })
+  const specialCharacters = {
+    ':': 'colon',
+    ',': 'comma',
+    '{': 'left-brace',
+    '}': 'right-brace',
+    '[': 'left-bracket',
+    ']': 'right-bracket',
+    '.': 'period',
+  }
 
-  each([
-    [':', 'colon'],
-    ['{', 'left-brace'],
-    ['}', 'right-brace'],
-    ['.', 'period'],
-  ]).it(
+  each(Object.entries(specialCharacters)).it(
+    'special character %s returns type %s',
+    (char, charType) => {
+      expect(lexer(char, 0)).toEqual({
+        type: charType,
+        value: char,
+        position: {
+          start: 0,
+          end: 0,
+        },
+      })
+    }
+  )
+
+  each(Object.entries(specialCharacters)).it(
     'special character %s prefixing string returns type %s',
     (char, charType) => {
       expect(lexer(`${char}foo`, 0)).toEqual({
@@ -255,12 +258,14 @@ describe('lexer', () => {
   })
 
   it('returns quoted string for quoted string containing special characters', () => {
-    expect(lexer("'foo:  fsdf {  } .'", 0)).toEqual({
+    expect(
+      lexer(`'foo fsdf ${Object.keys(specialCharacters).join(' ')}'`, 0)
+    ).toEqual({
       type: 'string-quoted',
-      value: "'foo:  fsdf {  } .'",
+      value: `'foo fsdf ${Object.keys(specialCharacters).join(' ')}'`,
       position: {
         start: 0,
-        end: 18,
+        end: 23,
       },
     })
   })
