@@ -215,15 +215,21 @@ describe('parser', () => {
     )
   })
 
-  it('throws exception when comma follows property name', () => {
-    expect(() => parser(`foo.`)).toThrow(
-      'Unexpected left bracket at position 3.'
-    )
+  it('includes period in property name', () => {
+    expect(parser(`foo.`)).toEqual({
+      ['foo.']: true,
+    })
   })
 
   it('includes number in property name', () => {
     expect(parser(`foo2.6`)).toEqual({
       ['foo2.6']: true,
     })
+  })
+
+  it('throws exception when no value after colon', () => {
+    expect(() => parser(`foo:`)).toThrow(
+      `No property value specified for property 'foo'.`
+    )
   })
 })

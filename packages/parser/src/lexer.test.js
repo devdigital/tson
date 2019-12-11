@@ -110,6 +110,20 @@ describe('lexer', () => {
   each([[':'], ['{'], ['}'], ["'"]]).it(
     'returns string with trailing %s',
     trailing => {
+      expect(lexer(`foo${trailing}`, 2)).toEqual({
+        type: 'string-unquoted',
+        value: 'foo',
+        position: {
+          start: 2,
+          end: 4,
+        },
+      })
+    }
+  )
+
+  each([[':'], ['{'], ['}'], ["'"]]).it(
+    'returns string with trailing %s and prefixed whitespace',
+    trailing => {
       expect(lexer(`  foo${trailing}`, 2)).toEqual({
         type: 'string-unquoted',
         value: 'foo',
@@ -272,4 +286,6 @@ describe('lexer', () => {
       'Missing ending quotation started at position 0'
     )
   })
+
+  it('returns ')
 })
