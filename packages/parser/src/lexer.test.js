@@ -53,7 +53,7 @@ describe('lexer', () => {
 
   it('returns left brace token', () => {
     expect(lexer('{', 0)).toEqual({
-      type: 'left-brace',
+      type: 'brace-left',
       value: '{',
       position: {
         start: 0,
@@ -64,7 +64,7 @@ describe('lexer', () => {
 
   it('returns right brace token', () => {
     expect(lexer('}', 0)).toEqual({
-      type: 'right-brace',
+      type: 'brace-right',
       value: '}',
       position: {
         start: 0,
@@ -123,10 +123,10 @@ describe('lexer', () => {
   const specialCharacters = {
     ':': 'colon',
     ',': 'comma',
-    '{': 'left-brace',
-    '}': 'right-brace',
-    '[': 'left-bracket',
-    ']': 'right-bracket',
+    '{': 'brace-left',
+    '}': 'brace-right',
+    '[': 'bracket-left',
+    ']': 'bracket-right',
     '.': 'period',
   }
 
