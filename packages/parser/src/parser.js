@@ -15,11 +15,18 @@ const obj = () => {
       propertyName = name
     },
     completeProperty(value) {
+      if (!propertyName) {
+        throw new Error('Attempting to complete property with no name.')
+      }
+
       if (result.hasOwnProperty(propertyName)) {
         throw new Error(`Property name '${propertyName}' already defined.`)
       }
 
+      console.log(`setting ${propertyName} to ${value}`)
       result[propertyName] = value
+
+      propertyName = null
     },
     get() {
       return result
@@ -66,10 +73,12 @@ const parserInternal = text => {
       case 'property-name':
         switch (token.type) {
           case 'colon':
+            position = token.position.end + 1
             state = 'property-value'
             break
           case 'whitespace':
             current.completeProperty(true)
+            position = token.position.end + 1
             state = 'awaiting-property-name'
             break
           default:
@@ -82,7 +91,27 @@ const parserInternal = text => {
             throw new unexpectedTokenError(token.type, position)
           case 'string-unquoted':
           case 'number':
+          case 'boolean':
+            console.log('COMPLETE', token.value)
             current.completeProperty(token.value)
+            position = token.position.end + 1
+
+            if (isLast(position)) {
+              return current.get()
+            }
+
+            state = 'awaiting-property-name'
+            break
+          case 'string-quoted':
+            current.completeProperty(
+              token.value.substring(1, token.value.length - 1)
+            ) // strip off apostrophes
+            position = token.position.end + 1
+
+            if (isLast(position)) {
+              return current.get()
+            }
+
             state = 'awaiting-property-name'
             break
           default:

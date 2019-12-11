@@ -54,4 +54,70 @@ describe('parser', () => {
       )
     }
   )
+
+  it('returns string property for key value', () => {
+    expect(parser('foo:bah')).toEqual({
+      foo: 'bah',
+    })
+  })
+
+  it('returns string property for key value with whitespace', () => {
+    expect(parser('   foo:bah   ')).toEqual({
+      foo: 'bah',
+    })
+  })
+
+  it('returns string property for quoted key value', () => {
+    expect(parser(`foo:'bah'`)).toEqual({
+      foo: 'bah',
+    })
+  })
+
+  it('returns string property for quoted key value', () => {
+    expect(parser(`foo:'bah'`)).toEqual({
+      foo: 'bah',
+    })
+  })
+
+  it('returns string property for quoted key value with whitespace', () => {
+    expect(parser(`   foo:'bah'  `)).toEqual({
+      foo: 'bah',
+    })
+  })
+
+  it('returns number property', () => {
+    expect(parser(`foo:2.6`)).toEqual({
+      foo: 2.6,
+    })
+  })
+
+  it('returns number property with whitespace', () => {
+    expect(parser(`   foo:2.6  `)).toEqual({
+      foo: 2.6,
+    })
+  })
+
+  it('returns boolean false property', () => {
+    expect(parser(`foo:false`)).toEqual({
+      foo: false,
+    })
+  })
+
+  it('returns boolean true property', () => {
+    expect(parser(`foo:true`)).toEqual({
+      foo: true,
+    })
+  })
+
+  it('throws exception for colon following colon', () => {
+    expect(() => parser(`foo::true`)).toThrow('Unexpected colon at position 4.')
+  })
+
+  it('throws exception for period following colon', () => {
+    expect(() => parser(`foo:.bah`)).toThrow('Unexpected period at position 4.')
+  })
+
+  it('throws exception for common following colon', () => {
+    expect(() => parser(`foo:,bah`)).toThrow('Unexpected comma at position 4.')
+  })
 })
