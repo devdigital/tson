@@ -1,5 +1,6 @@
 import lexer from './lexer'
 import each from 'jest-each'
+import specialCharacters from './utils/special-characters'
 
 describe('lexer', () => {
   it('throws exception for undefined text', () => {
@@ -119,16 +120,6 @@ describe('lexer', () => {
       })
     }
   )
-
-  const specialCharacters = {
-    ':': 'colon',
-    ',': 'comma',
-    '{': 'brace-left',
-    '}': 'brace-right',
-    '[': 'bracket-left',
-    ']': 'bracket-right',
-    '.': 'period',
-  }
 
   each(Object.entries(specialCharacters)).it(
     'special character %s returns type %s',
