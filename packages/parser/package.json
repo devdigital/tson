@@ -39,6 +39,7 @@
     "jest": "^24.9.0",
     "jest-each": "^24.9.0",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react-dom": "^16.12.0",
+    "react-json-view": "^1.19.1"
   }
 }
