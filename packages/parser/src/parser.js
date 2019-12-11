@@ -6,7 +6,7 @@ import toTokenType from './utils/to-token-type'
 const unexpectedTokenError = (type, position) =>
   new Error(`Unexpected ${toTokenType(type)} at position ${position}.`)
 
-const obj = () => {
+const objectFactory = () => {
   const result = {}
   let propertyName = null
 
@@ -34,16 +34,51 @@ const obj = () => {
   }
 }
 
+const arrayFactory = () => {
+  let result = []
+
+  return {
+    start() {
+      result = []
+    },
+    add(value) {
+      result.push(value)
+    },
+    get() {
+      return result
+    },
+  }
+}
+
+const stripApostrophes = value => {
+  if (value === null || value === undefined) {
+    return null
+  }
+
+  if (value.length === 1) {
+    return value
+  }
+
+  console.log(value)
+  if (value[0] === "'" && value[value.length - 1] === "'") {
+    return value.substring(1, value.length - 1)
+  }
+
+  return value
+}
+
 const parserInternal = text => {
   let state = 'awaiting-property-name'
-  let current = obj()
+  let current = objectFactory()
+  let array = arrayFactory()
   let position = 0
 
   const isLast = position => position >= text.length - 1
 
   do {
+    console.log(`|${text}|`)
+    console.log('getting token from positon ', position)
     let token = lexer(text, position)
-    console.log(text, position, token)
 
     console.log(state, token.type)
     switch (state) {
@@ -52,6 +87,10 @@ const parserInternal = text => {
           case 'whitespace':
             console.log('whitespace found', token.position.end)
             position = token.position.end + 1
+
+            if (isLast(position)) {
+              return current.get()
+            }
             console.log('position is now ', position)
             break
           case 'string-unquoted':
@@ -79,6 +118,11 @@ const parserInternal = text => {
           case 'whitespace':
             current.completeProperty(true)
             position = token.position.end + 1
+
+            if (isLast(position)) {
+              return current.get()
+            }
+
             state = 'awaiting-property-name'
             break
           default:
@@ -90,10 +134,11 @@ const parserInternal = text => {
           case 'whitespace':
             throw new unexpectedTokenError(token.type, position)
           case 'string-unquoted':
+          case 'string-quoted':
           case 'number':
           case 'boolean':
             console.log('COMPLETE', token.value)
-            current.completeProperty(token.value)
+            current.completeProperty(stripApostrophes(token.value))
             position = token.position.end + 1
 
             if (isLast(position)) {
@@ -102,14 +147,38 @@ const parserInternal = text => {
 
             state = 'awaiting-property-name'
             break
+          case 'bracket-left':
+            position = token.position.end + 1
+            array.start()
+            state = 'array'
+            break
+          default:
+            throw unexpectedTokenError(token.type, position)
+        }
+        break
+      case 'array':
+        switch (token.type) {
           case 'string-quoted':
-            current.completeProperty(
-              token.value.substring(1, token.value.length - 1)
-            ) // strip off apostrophes
+          case 'string-unquoted':
+          case 'number':
+            array.add(stripApostrophes(token.value))
+            position = token.position.end + 1
+            console.log('added array value', state)
+            break
+          case 'whitespace':
+          case 'comma':
+            position = token.position.end + 1
+            break
+          case 'bracket-right':
+            current.completeProperty(array.get())
             position = token.position.end + 1
 
+            console.log(position)
             if (isLast(position)) {
-              return current.get()
+              console.log('last!')
+              const foo = current.get()
+              console.log(foo)
+              return foo
             }
 
             state = 'awaiting-property-name'
@@ -119,9 +188,7 @@ const parserInternal = text => {
         }
         break
     }
-  } while (position < text.length - 1)
-
-  return current.get()
+  } while (true)
 }
 
 const parser = text => {

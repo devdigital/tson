@@ -120,4 +120,110 @@ describe('parser', () => {
   it('throws exception for common following colon', () => {
     expect(() => parser(`foo:,bah`)).toThrow('Unexpected comma at position 4.')
   })
+
+  it('throws exception for whitespace following colon', () => {
+    expect(() => parser(`foo: bah`)).toThrow(
+      'Unexpected whitespace at position 4.'
+    )
+  })
+
+  it('returns two boolean properties', () => {
+    expect(parser('foo bah')).toEqual({
+      foo: true,
+      bah: true,
+    })
+  })
+
+  it('returns two string properties', () => {
+    expect(parser('foo:bah bah:baz')).toEqual({
+      foo: 'bah',
+      bah: 'baz',
+    })
+  })
+
+  it('returns two quoted string properties', () => {
+    expect(parser(`foo:'bah' bah:'baz'`)).toEqual({
+      foo: 'bah',
+      bah: 'baz',
+    })
+  })
+
+  it('returns two number properties', () => {
+    expect(parser(`foo:5 bah:4.5`)).toEqual({
+      foo: 5,
+      bah: 4.5,
+    })
+  })
+
+  it('returns a single element number array', () => {
+    expect(parser(`foo:[5]`)).toEqual({
+      foo: [5],
+    })
+  })
+
+  it('returns a multiple element number array', () => {
+    expect(parser(`foo:[5,6,7]`)).toEqual({
+      foo: [5, 6, 7],
+    })
+  })
+
+  it('returns a multiple element number array with whitespace', () => {
+    expect(parser(`foo:[  5  ,  6   , 7 ]`)).toEqual({
+      foo: [5, 6, 7],
+    })
+  })
+
+  it('returns a single string array for unquoted', () => {
+    expect(parser(`foo:[foo,bah,baz]`)).toEqual({
+      foo: ['foo', 'bah', 'baz'],
+    })
+  })
+
+  it('returns a single string array for unquoted with whitespace', () => {
+    expect(parser(`foo:[ foo ,  bah,  baz]`)).toEqual({
+      foo: ['foo', 'bah', 'baz'],
+    })
+  })
+
+  it('returns a multiple element string array for quoted', () => {
+    expect(parser(`foo:['foo:','bah.','baz,']`)).toEqual({
+      foo: ['foo:', 'bah.', 'baz,'],
+    })
+  })
+
+  it('returns a multiple element string array for quoted with whitespace', () => {
+    expect(parser(`foo:[ ' foo: ' ,  'bah.' , ' baz,']`)).toEqual({
+      foo: [' foo: ', 'bah.', ' baz,'],
+    })
+  })
+
+  it('returns mixed array of elements', () => {
+    expect(parser(`foo:['foo',bah,2.5,6,+7,-9,'baz,']`)).toEqual({
+      foo: ['foo', 'bah', 2.5, 6, 7, -9, 'baz,'],
+    })
+  })
+
+  it('throws exception when starting for array with no property name', () => {
+    expect(() => parser(`[foo]`)).toThrow(
+      'Unexpected left bracket at position 0.'
+    )
+  })
+
+  it('throws exception when no colon between property name and value', () => {
+    expect(() => parser(`foo[foo]`)).toThrow(
+      'Unexpected left bracket at position 3.'
+    )
+  })
+
+  it('throws exception when comma follows property name', () => {
+    expect(() => parser(`foo.`)).toThrow(
+      'Unexpected left bracket at position 3.'
+    )
+  })
+
+  it('includes number in property name', () => {
+    expect(parser(`foo2.6`)).toEqual({
+      ['foo2.6']: true,
+    })
+  })
 })
