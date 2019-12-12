@@ -221,7 +221,7 @@ const parseObject = (
               throw nonMatchingArrayBracket(arrayValue.getStartPosition())
             }
 
-            state = 'array'
+            state = 'array-value'
             break
           case 'brace-left':
             position = token.position.end + 1
@@ -251,11 +251,12 @@ const parseObject = (
             throw unexpectedTokenError(token.type, position)
         }
         break
-      case 'array':
+      case 'array-value':
         switch (token.type) {
           case 'string-quoted':
           case 'string-unquoted':
           case 'number':
+          case 'boolean':
             arrayValue.add(stripApostrophes(token.value))
             position = token.position.end + 1
 
@@ -265,13 +266,16 @@ const parseObject = (
 
             break
           case 'whitespace':
-          case 'comma':
             position = token.position.end + 1
 
             if (isLast(position)) {
               throw nonMatchingArrayBracket(arrayValue.getStartPosition())
             }
 
+            break
+          case 'comma':
+            position = token.position.end + 1
+            state = 'array-comma'
             break
           case 'bracket-right':
             current.completeProperty(arrayValue.get())
@@ -282,6 +286,33 @@ const parseObject = (
             }
 
             state = 'awaiting-property-name'
+            break
+          default:
+            throw unexpectedTokenError(token.type, position)
+        }
+        break
+      case 'array-comma':
+        switch (token.type) {
+          case 'string-quoted':
+          case 'string-unquoted':
+          case 'number':
+          case 'boolean':
+            arrayValue.add(stripApostrophes(token.value))
+            position = token.position.end + 1
+
+            if (isLast(position)) {
+              throw nonMatchingArrayBracket(arrayValue.getStartPosition())
+            }
+
+            state = 'array-value'
+            break
+          case 'whitespace':
+            position = token.position.end + 1
+
+            if (isLast(position)) {
+              throw nonMatchingArrayBracket(arrayValue.getStartPosition())
+            }
+
             break
           default:
             throw unexpectedTokenError(token.type, position)

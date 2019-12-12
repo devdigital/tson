@@ -56,32 +56,32 @@ describe('parser', () => {
   )
 
   it('returns string property for key value', () => {
-    expect(parser('foo:bah')).toEqual({
-      foo: 'bah',
+    expect(parser('foo:bar')).toEqual({
+      foo: 'bar',
     })
   })
 
   it('returns string property for key value with whitespace', () => {
-    expect(parser('   foo:bah   ')).toEqual({
-      foo: 'bah',
+    expect(parser('   foo:bar   ')).toEqual({
+      foo: 'bar',
     })
   })
 
   it('returns string property for quoted key value', () => {
-    expect(parser(`foo:'bah'`)).toEqual({
-      foo: 'bah',
+    expect(parser(`foo:'bar'`)).toEqual({
+      foo: 'bar',
     })
   })
 
   it('returns string property for quoted key value', () => {
-    expect(parser(`foo:'bah'`)).toEqual({
-      foo: 'bah',
+    expect(parser(`foo:'bar'`)).toEqual({
+      foo: 'bar',
     })
   })
 
   it('returns string property for quoted key value with whitespace', () => {
-    expect(parser(`   foo:'bah'  `)).toEqual({
-      foo: 'bah',
+    expect(parser(`   foo:'bar'  `)).toEqual({
+      foo: 'bar',
     })
   })
 
@@ -114,44 +114,44 @@ describe('parser', () => {
   })
 
   it('throws exception for period following colon', () => {
-    expect(() => parser(`foo:.bah`)).toThrow('Unexpected period at position 4.')
+    expect(() => parser(`foo:.bar`)).toThrow('Unexpected period at position 4.')
   })
 
   it('throws exception for common following colon', () => {
-    expect(() => parser(`foo:,bah`)).toThrow('Unexpected comma at position 4.')
+    expect(() => parser(`foo:,bar`)).toThrow('Unexpected comma at position 4.')
   })
 
   it('throws exception for whitespace following colon', () => {
-    expect(() => parser(`foo: bah`)).toThrow(
+    expect(() => parser(`foo: bar`)).toThrow(
       'Unexpected whitespace at position 4.'
     )
   })
 
   it('returns two boolean properties', () => {
-    expect(parser('foo bah')).toEqual({
+    expect(parser('foo bar')).toEqual({
       foo: true,
-      bah: true,
+      bar: true,
     })
   })
 
   it('returns two string properties', () => {
-    expect(parser('foo:bah bah:baz')).toEqual({
-      foo: 'bah',
-      bah: 'baz',
+    expect(parser('foo:bar bar:baz')).toEqual({
+      foo: 'bar',
+      bar: 'baz',
     })
   })
 
   it('returns two quoted string properties', () => {
-    expect(parser(`foo:'bah' bah:'baz'`)).toEqual({
-      foo: 'bah',
-      bah: 'baz',
+    expect(parser(`foo:'bar' bar:'baz'`)).toEqual({
+      foo: 'bar',
+      bar: 'baz',
     })
   })
 
   it('returns two number properties', () => {
-    expect(parser(`foo:5 bah:4.5`)).toEqual({
+    expect(parser(`foo:5 bar:4.5`)).toEqual({
       foo: 5,
-      bah: 4.5,
+      bar: 4.5,
     })
   })
 
@@ -174,32 +174,44 @@ describe('parser', () => {
   })
 
   it('returns a single string array for unquoted', () => {
-    expect(parser(`foo:[foo,bah,baz]`)).toEqual({
-      foo: ['foo', 'bah', 'baz'],
+    expect(parser(`foo:[foo,bar,baz]`)).toEqual({
+      foo: ['foo', 'bar', 'baz'],
     })
   })
 
   it('returns a single string array for unquoted with whitespace', () => {
-    expect(parser(`foo:[ foo ,  bah,  baz]`)).toEqual({
-      foo: ['foo', 'bah', 'baz'],
+    expect(parser(`foo:[ foo ,  bar,  baz]`)).toEqual({
+      foo: ['foo', 'bar', 'baz'],
     })
   })
 
   it('returns a multiple element string array for quoted', () => {
-    expect(parser(`foo:['foo:','bah.','baz,']`)).toEqual({
-      foo: ['foo:', 'bah.', 'baz,'],
+    expect(parser(`foo:['foo:','bar.','baz,']`)).toEqual({
+      foo: ['foo:', 'bar.', 'baz,'],
     })
   })
 
   it('returns a multiple element string array for quoted with whitespace', () => {
-    expect(parser(`foo:[ ' foo: ' ,  'bah.' , ' baz,']`)).toEqual({
-      foo: [' foo: ', 'bah.', ' baz,'],
+    expect(parser(`foo:[ ' foo: ' ,  'bar.' , ' baz,']`)).toEqual({
+      foo: [' foo: ', 'bar.', ' baz,'],
+    })
+  })
+
+  it('returns a multiple element boolean array', () => {
+    expect(parser(`foo:[false,true,true]`)).toEqual({
+      foo: [false, true, true],
+    })
+  })
+
+  it('returns a multiple element boolean array with whitespace', () => {
+    expect(parser(`foo:[ false  ,  true , true]`)).toEqual({
+      foo: [false, true, true],
     })
   })
 
   it('returns mixed array of elements', () => {
-    expect(parser(`foo:['foo',bah,2.5,6,+7,-9,'baz,']`)).toEqual({
-      foo: ['foo', 'bah', 2.5, 6, 7, -9, 'baz,'],
+    expect(parser(`foo:['foo',bar,2.5,6,+7,-9,'baz,']`)).toEqual({
+      foo: ['foo', 'bar', 2.5, 6, 7, -9, 'baz,'],
     })
   })
 
@@ -208,6 +220,44 @@ describe('parser', () => {
       'Unexpected left bracket at position 0.'
     )
   })
+
+  it('throws exception when trailing comma within array', () => {
+    expect(() => parser(`foo:[foo,]`)).toThrow(
+      'Unexpected right bracket at position 9.'
+    )
+  })
+
+  it('throws exception when two trailing commas within array', () => {
+    expect(() => parser(`foo:[foo  ,   ,]`)).toThrow(
+      'Unexpected comma at position 14.'
+    )
+  })
+
+  each(
+    Object.entries(specialCharacters).filter(
+      e => e[1] !== 'comma' && e[1] !== 'bracket-right'
+    )
+  ).it(
+    'special character %s within array throws exception type %s',
+    (char, charType) => {
+      expect(() => parser(`foo:[${char}]`)).toThrow(
+        `Unexpected ${toTokenType(charType)} at position 5.`
+      )
+    }
+  )
+
+  each(
+    Object.entries(specialCharacters).filter(
+      e => e[1] !== 'comma' && e[1] !== 'bracket-right'
+    )
+  ).it(
+    'special character %s following comma within array throws exception $s',
+    (char, charType) => {
+      expect(() => parser(`foo:[foo,${char}]`)).toThrow(
+        `Unexpected ${toTokenType(charType)} at position 9.`
+      )
+    }
+  )
 
   it('throws exception when no colon between property name and value', () => {
     expect(() => parser(`foo[foo]`)).toThrow(
@@ -246,13 +296,13 @@ describe('parser', () => {
   })
 
   it('throws on unquoted string following bracket with no closing bracket', () => {
-    expect(() => parser('foo:[bah')).toThrow(
+    expect(() => parser('foo:[bar')).toThrow(
       'No closing bracket for array started at position 4.'
     )
   })
 
   it('throws on quoted string following bracket with no closing bracket', () => {
-    expect(() => parser("foo:['bah'")).toThrow(
+    expect(() => parser("foo:['bar'")).toThrow(
       'No closing bracket for array started at position 4.'
     )
   })
@@ -282,17 +332,17 @@ describe('parser', () => {
   })
 
   it('returns object with unquoted string', () => {
-    expect(parser('foo:{foo:bah}')).toEqual({
+    expect(parser('foo:{foo:bar}')).toEqual({
       foo: {
-        foo: 'bah',
+        foo: 'bar',
       },
     })
   })
 
   it('returns object with quoted string', () => {
-    expect(parser("foo:{foo:'bah'}")).toEqual({
+    expect(parser("foo:{foo:'bar'}")).toEqual({
       foo: {
-        foo: 'bah',
+        foo: 'bar',
       },
     })
   })
@@ -322,31 +372,31 @@ describe('parser', () => {
   })
 
   it('returns object with array with multiple unquoted string elements', () => {
-    expect(parser('foo:{foo:[bah, boo, baz]}')).toEqual({
+    expect(parser('foo:{foo:[bar, boo, baz]}')).toEqual({
       foo: {
-        foo: ['bah', 'boo', 'baz'],
+        foo: ['bar', 'boo', 'baz'],
       },
     })
   })
 
   it('returns object with array with multiple quoted string elements', () => {
-    expect(parser("foo:{foo:[ 'bah', 'boo'  , 'baz'  ]}")).toEqual({
+    expect(parser("foo:{foo:[ 'bar', 'boo'  , 'baz'  ]}")).toEqual({
       foo: {
-        foo: ['bah', 'boo', 'baz'],
+        foo: ['bar', 'boo', 'baz'],
       },
     })
   })
 
   it('returns object for whitespace before closing brace', () => {
-    expect(parser('foo:{foo:bah }')).toEqual({
+    expect(parser('foo:{foo:bar }')).toEqual({
       foo: {
-        foo: 'bah',
+        foo: 'bar',
       },
     })
   })
 
   it('throws exception for period before brace', () => {
-    expect(() => parser('foo:{foo:bah  .}')).toThrow(
+    expect(() => parser('foo:{foo:bar  .}')).toThrow(
       'Unexpected period at position 14.'
     )
   })
@@ -368,17 +418,17 @@ describe('parser', () => {
   })
 
   it('returns object with boolean property', () => {
-    expect(parser('foo:{bah}')).toEqual({
+    expect(parser('foo:{bar}')).toEqual({
       foo: {
-        bah: true,
+        bar: true,
       },
     })
   })
 
   it('returns object with nested boolean property', () => {
-    expect(parser('foo:{bah:{baz}}')).toEqual({
+    expect(parser('foo:{bar:{baz}}')).toEqual({
       foo: {
-        bah: {
+        bar: {
           baz: true,
         },
       },
@@ -386,17 +436,17 @@ describe('parser', () => {
   })
 
   it('returns object for whitespace before object value property name', () => {
-    expect(parser('foo:{ bah:baz}')).toEqual({
+    expect(parser('foo:{ bar:baz}')).toEqual({
       foo: {
-        bah: 'baz',
+        bar: 'baz',
       },
     })
   })
 
   it('returns object value with multiple unquoted string properties', () => {
-    expect(parser('foo:{ bah:baz foo:bar     baz:foo }')).toEqual({
+    expect(parser('foo:{ bar:baz foo:bar     baz:foo }')).toEqual({
       foo: {
-        bah: 'baz',
+        bar: 'baz',
         foo: 'bar',
         baz: 'foo',
       },
@@ -404,9 +454,9 @@ describe('parser', () => {
   })
 
   it('returns object value with multiple quoted string properties', () => {
-    expect(parser("foo:{ bah:'baz  '   foo:'bar'     baz:' foo'}")).toEqual({
+    expect(parser("foo:{ bar:'baz  '   foo:'bar'     baz:' foo'}")).toEqual({
       foo: {
-        bah: 'baz  ',
+        bar: 'baz  ',
         foo: 'bar',
         baz: ' foo',
       },
@@ -415,10 +465,10 @@ describe('parser', () => {
 
   it('returns object value with multiple number properties', () => {
     expect(
-      parser('foo:{ bah:2 foo:5.67   baz:+56  boo:-7 blah:-9.34  }')
+      parser('foo:{ bar:2 foo:5.67   baz:+56  boo:-7 blah:-9.34  }')
     ).toEqual({
       foo: {
-        bah: 2,
+        bar: 2,
         foo: 5.67,
         baz: 56,
         boo: -7,
@@ -428,15 +478,15 @@ describe('parser', () => {
   })
 
   it('throws exception for duplicate property name in object value', () => {
-    expect(() => parser('foo:{foo:bah foo:baz}')).toThrow(
+    expect(() => parser('foo:{foo:bar foo:baz}')).toThrow(
       "Property name 'foo' already defined."
     )
   })
 
   it('returns nested objects', () => {
-    expect(parser('foo:{ bah:{blah:baz}}  ')).toEqual({
+    expect(parser('foo:{ bar:{blah:baz}}  ')).toEqual({
       foo: {
-        bah: {
+        bar: {
           blah: 'baz',
         },
       },
@@ -444,9 +494,9 @@ describe('parser', () => {
   })
 
   it('returns nested objects with multiple unquoted strings', () => {
-    expect(parser('foo:{ bah:{blah:baz baz:boo foo:blah  }}  ')).toEqual({
+    expect(parser('foo:{ bar:{blah:baz baz:boo foo:blah  }}  ')).toEqual({
       foo: {
-        bah: {
+        bar: {
           blah: 'baz',
           baz: 'boo',
           foo: 'blah',
@@ -457,10 +507,10 @@ describe('parser', () => {
 
   it('returns nested objects with multiple quoted strings', () => {
     expect(
-      parser("foo:{ bah:{blah:'baz  ' baz:'  boo' foo:'blah'}  }  ")
+      parser("foo:{ bar:{blah:'baz  ' baz:'  boo' foo:'blah'}  }  ")
     ).toEqual({
       foo: {
-        bah: {
+        bar: {
           blah: 'baz  ',
           baz: '  boo',
           foo: 'blah',
@@ -471,10 +521,10 @@ describe('parser', () => {
 
   it('returns nested objects with multiple numbers', () => {
     expect(
-      parser('foo:{ bah:{blah:2   baz:5.6   foo:+34 blah2:-9 biz:-23   }  }  ')
+      parser('foo:{ bar:{blah:2   baz:5.6   foo:+34 blah2:-9 biz:-23   }  }  ')
     ).toEqual({
       foo: {
-        bah: {
+        bar: {
           blah: 2,
           baz: 5.6,
           foo: 34,
@@ -486,9 +536,9 @@ describe('parser', () => {
   })
 
   it('returns nested objects with booleans', () => {
-    expect(parser('foo:{ bah:{blah baz:true foo:false     }  }  ')).toEqual({
+    expect(parser('foo:{ bar:{blah baz:true foo:false     }  }  ')).toEqual({
       foo: {
-        bah: {
+        bar: {
           blah: true,
           baz: true,
           foo: false,
@@ -499,10 +549,10 @@ describe('parser', () => {
 
   it('returns multiple nested objects', () => {
     expect(
-      parser("foo:{ bah:{blah baz:{tru boo:{arg:'foo' num:7}}   }  }  ")
+      parser("foo:{ bar:{blah baz:{tru boo:{arg:'foo' num:7}}   }  }  ")
     ).toEqual({
       foo: {
-        bah: {
+        bar: {
           blah: true,
           baz: {
             tru: true,
