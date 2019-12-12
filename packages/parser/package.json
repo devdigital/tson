@@ -2,7 +2,6 @@
   "name": "@tson/parser",
   "version": "0.1.0",
   "description": "TSON (Terse Single Object Notation) parser",
-  "private": true,
   "main": "dist/parser.js",
   "module": "dist/parser.esm.js",
   "license": "MIT",
