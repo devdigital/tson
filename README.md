@@ -16,8 +16,8 @@ The `@tson/parser` package provides a parser for converting a TSON format string
 import parser from '@tson/parser'
 // or const parser = require('@tson/parser')
 
-parser('foo:bah')
-//=> { foo: 'bah' }
+parser('foo:bar')
+//=> { foo: 'bar' }
 ```
 
 ## Specification
@@ -32,7 +32,7 @@ The value will be converted to a `number` or a `boolean` if the conversion can b
 
 | TSON string | Object output    |
 | ----------- | ---------------- |
-| `foo:bah`   | `{ foo: 'bah' }` |
+| `foo:bar`   | `{ foo: 'bar' }` |
 | `foo:false` | `{ foo: false }` |
 | `foo:true`  | `{ foo: true }`  |
 | `foo:5`     | `{ foo: 5 }`     |
@@ -58,8 +58,8 @@ parser('foo')
 You can define multiple whitespace separated properties:
 
 ```javascript
-parser('foo:bah baz biz:5')
-//=> { foo: 'bah', baz: true, biz: 5 }
+parser('foo:bar baz biz:5')
+//=> { foo: 'bar', baz: true, biz: 5 }
 ```
 
 ### Arrays
@@ -67,8 +67,8 @@ parser('foo:bah baz biz:5')
 Arrays are defined with left and right brackets and comma separated values. The values will also be implicitly converted to `number` or `boolean`:
 
 ```javascript
-parser('foo:[5, bah, false]')
-//=> { foo: [5, 'bah', false] }
+parser('foo:[5, bar, false]')
+//=> { foo: [5, 'bar', false] }
 ```
 
 ### Nested Objects
@@ -76,6 +76,6 @@ parser('foo:[5, bah, false]')
 Nested objects are also supported:
 
 ```javascript
-parser('foo:{bah:5 baz:true}}')
-//=> { foo: { bah: 5, baz: true } }
+parser('foo:{bar:5 baz:true}}')
+//=> { foo: { bar: 5, baz: true } }
 ```
