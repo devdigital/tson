@@ -52,6 +52,9 @@ const objectFactory = position => {
     getStartPosition() {
       return startPosition
     },
+    getEndPosition() {
+      return endPosition
+    },
     setEndPosition(position) {
       endPosition = position
     },
@@ -180,7 +183,7 @@ const parseObject = (
             }
 
             current.completeProperty(true)
-            position = token.position.end + 1
+            position = token.position.end + 2 // skip end brace
 
             if (isLast(position)) {
               return current.get()

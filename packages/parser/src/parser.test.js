@@ -375,6 +375,16 @@ describe('parser', () => {
     })
   })
 
+  it('returns object with nested boolean property', () => {
+    expect(parser('foo:{bah:{baz}}')).toEqual({
+      foo: {
+        bah: {
+          baz: true,
+        },
+      },
+    })
+  })
+
   it('returns object for whitespace before object value property name', () => {
     expect(parser('foo:{ bah:baz}')).toEqual({
       foo: {
