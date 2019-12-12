@@ -137,7 +137,7 @@ const parseObject = (
                 throw nonMatchingObjectBrace(current.getStartPosition())
               }
 
-              current.completeProperty(true, token.position.end)
+              current.completeProperty(true)
               return current.get()
             }
 
@@ -165,7 +165,21 @@ const parseObject = (
             state = 'property-value'
             break
           case 'whitespace':
-            current.completeProperty(true, token.position.end)
+            current.completeProperty(true)
+            position = token.position.end + 1
+
+            if (isLast(position)) {
+              return current.get()
+            }
+
+            state = 'awaiting-property-name'
+            break
+          case 'brace-right':
+            if (!childObject) {
+              throw unexpectedTokenError(token.type, position)
+            }
+
+            current.completeProperty(true)
             position = token.position.end + 1
 
             if (isLast(position)) {
@@ -186,10 +200,7 @@ const parseObject = (
           case 'string-quoted':
           case 'number':
           case 'boolean':
-            current.completeProperty(
-              stripApostrophes(token.value),
-              token.position.end
-            )
+            current.completeProperty(stripApostrophes(token.value))
             position = token.position.end + 1
 
             if (isLast(position)) {
@@ -223,7 +234,7 @@ const parseObject = (
               true // child object
             )
 
-            current.completeProperty(result, endPosition)
+            current.completeProperty(result)
 
             position = endPosition + 1 // skip end brace
 
@@ -260,7 +271,7 @@ const parseObject = (
 
             break
           case 'bracket-right':
-            current.completeProperty(arrayValue.get(), token.position.end)
+            current.completeProperty(arrayValue.get())
             position = token.position.end + 1
 
             if (isLast(position)) {

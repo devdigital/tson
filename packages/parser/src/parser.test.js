@@ -367,6 +367,14 @@ describe('parser', () => {
     expect(() => parser('foo{')).toThrow('Unexpected left brace at position 3.')
   })
 
+  it('returns object with boolean property', () => {
+    expect(parser('foo:{bah}')).toEqual({
+      foo: {
+        bah: true,
+      },
+    })
+  })
+
   it('returns object for whitespace before object value property name', () => {
     expect(parser('foo:{ bah:baz}')).toEqual({
       foo: {
@@ -420,6 +428,79 @@ describe('parser', () => {
       foo: {
         bah: {
           blah: 'baz',
+        },
+      },
+    })
+  })
+
+  it('returns nested objects with multiple unquoted strings', () => {
+    expect(parser('foo:{ bah:{blah:baz baz:boo foo:blah  }}  ')).toEqual({
+      foo: {
+        bah: {
+          blah: 'baz',
+          baz: 'boo',
+          foo: 'blah',
+        },
+      },
+    })
+  })
+
+  it('returns nested objects with multiple quoted strings', () => {
+    expect(
+      parser("foo:{ bah:{blah:'baz  ' baz:'  boo' foo:'blah'}  }  ")
+    ).toEqual({
+      foo: {
+        bah: {
+          blah: 'baz  ',
+          baz: '  boo',
+          foo: 'blah',
+        },
+      },
+    })
+  })
+
+  it('returns nested objects with multiple numbers', () => {
+    expect(
+      parser('foo:{ bah:{blah:2   baz:5.6   foo:+34 blah2:-9 biz:-23   }  }  ')
+    ).toEqual({
+      foo: {
+        bah: {
+          blah: 2,
+          baz: 5.6,
+          foo: 34,
+          blah2: -9,
+          biz: -23,
+        },
+      },
+    })
+  })
+
+  it('returns nested objects with booleans', () => {
+    expect(parser('foo:{ bah:{blah baz:true foo:false     }  }  ')).toEqual({
+      foo: {
+        bah: {
+          blah: true,
+          baz: true,
+          foo: false,
+        },
+      },
+    })
+  })
+
+  it('returns multiple nested objects', () => {
+    expect(
+      parser("foo:{ bah:{blah baz:{tru boo:{arg:'foo' num:7}}   }  }  ")
+    ).toEqual({
+      foo: {
+        bah: {
+          blah: true,
+          baz: {
+            tru: true,
+            boo: {
+              arg: 'foo',
+              num: 7,
+            },
+          },
         },
       },
     })
