@@ -6,6 +6,12 @@ import toTokenType from './utils/to-token-type'
 const unexpectedTokenError = (type, position) =>
   new Error(`Unexpected ${toTokenType(type)} at position ${position}.`)
 
+const noPropertyValueError = propertyName =>
+  new Error(`No property value specified for property '${propertyName}'.`)
+
+const nonMatchingArrayBracket = position =>
+  new Error(`No closing bracket for array started at position ${position}.`)
+
 const objectFactory = () => {
   const result = {}
   let propertyName = null
@@ -38,9 +44,11 @@ const objectFactory = () => {
 
 const arrayFactory = () => {
   let result = []
+  let startPosition = null
 
   return {
-    start() {
+    start(position) {
+      startPosition = position
       result = []
     },
     add(value) {
@@ -48,6 +56,9 @@ const arrayFactory = () => {
     },
     get() {
       return result
+    },
+    getStartPosition() {
+      return startPosition
     },
   }
 }
@@ -88,6 +99,7 @@ const parserInternal = text => {
             if (isLast(position)) {
               return current.get()
             }
+
             break
           case 'string-unquoted':
           case 'number':
@@ -111,9 +123,7 @@ const parserInternal = text => {
             position = token.position.end + 1
 
             if (isLast(position)) {
-              throw new Error(
-                `No property value specified for property '${current.propertyName()}'.`
-              )
+              throw noPropertyValueError(current.propertyName())
             }
 
             state = 'property-value'
@@ -150,8 +160,14 @@ const parserInternal = text => {
             state = 'awaiting-property-name'
             break
           case 'bracket-left':
+            array.start(position)
+
             position = token.position.end + 1
-            array.start()
+
+            if (isLast(position)) {
+              throw nonMatchingArrayBracket(array.getStartPosition())
+            }
+
             state = 'array'
             break
           default:
@@ -165,10 +181,20 @@ const parserInternal = text => {
           case 'number':
             array.add(stripApostrophes(token.value))
             position = token.position.end + 1
+
+            if (isLast(position)) {
+              throw nonMatchingArrayBracket(array.getStartPosition())
+            }
+
             break
           case 'whitespace':
           case 'comma':
             position = token.position.end + 1
+
+            if (isLast(position)) {
+              throw nonMatchingArrayBracket(array.getStartPosition())
+            }
+
             break
           case 'bracket-right':
             current.completeProperty(array.get())

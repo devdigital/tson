@@ -232,4 +232,52 @@ describe('parser', () => {
       `No property value specified for property 'foo'.`
     )
   })
+
+  it('throws on non closing array', () => {
+    expect(() => parser('foo:[')).toThrow(
+      'No closing bracket for array started at position 4.'
+    )
+  })
+
+  it('throws on whitespace following bracket with no closing bracket', () => {
+    expect(() => parser('foo:[ ')).toThrow(
+      'No closing bracket for array started at position 4.'
+    )
+  })
+
+  it('throws on unquoted string following bracket with no closing bracket', () => {
+    expect(() => parser('foo:[bah')).toThrow(
+      'No closing bracket for array started at position 4.'
+    )
+  })
+
+  it('throws on quoted string following bracket with no closing bracket', () => {
+    expect(() => parser("foo:['bah'")).toThrow(
+      'No closing bracket for array started at position 4.'
+    )
+  })
+
+  it('throws on number following bracket with no closing bracket', () => {
+    expect(() => parser('foo:[2.6')).toThrow(
+      'No closing bracket for array started at position 4.'
+    )
+  })
+
+  it('throws on number following bracket with no closing bracket', () => {
+    expect(() => parser('foo:[ 2.6')).toThrow(
+      'No closing bracket for array started at position 4.'
+    )
+  })
+
+  it('returns empty array with no whitespace', () => {
+    expect(parser('foo:[]')).toEqual({
+      foo: [],
+    })
+  })
+
+  it('returns empty array with whitespace', () => {
+    expect(parser('foo:[    ]')).toEqual({
+      foo: [],
+    })
+  })
 })
