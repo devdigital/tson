@@ -280,4 +280,66 @@ describe('parser', () => {
       foo: [],
     })
   })
+
+  it('returns object with unquoted string', () => {
+    expect(parser('foo:{foo:bah}')).toEqual({
+      foo: {
+        foo: 'bah',
+      },
+    })
+  })
+
+  it('returns object with quoted string', () => {
+    expect(parser("foo:{foo:'bah'}")).toEqual({
+      foo: {
+        foo: 'bah',
+      },
+    })
+  })
+
+  it('returns object with number', () => {
+    expect(parser('foo:{foo:26.6}')).toEqual({
+      foo: {
+        foo: 26.6,
+      },
+    })
+  })
+
+  it('returns object with empty array', () => {
+    expect(parser('foo:{foo:[]}')).toEqual({
+      foo: {
+        foo: [],
+      },
+    })
+  })
+
+  it('returns object with array with single element', () => {
+    expect(parser('foo:{foo:[26]}')).toEqual({
+      foo: {
+        foo: [26],
+      },
+    })
+  })
+
+  it('returns object with array with multiple unquoted string elements', () => {
+    expect(parser('foo:{foo:[bah, boo, baz]}')).toEqual({
+      foo: {
+        foo: ['bah', 'boo', 'baz'],
+      },
+    })
+  })
+
+  it('returns object with array with multiple quoted string elements', () => {
+    expect(parser("foo:{foo:[ 'bah', 'boo'  , 'baz'  ]}")).toEqual({
+      foo: {
+        foo: ['bah', 'boo', 'baz'],
+      },
+    })
+  })
+
+  it('throws exception with whitespace before closing brace', () => {
+    expect(() => parser('foo:{foo:bah }')).toThrow(
+      'Unexpected right brace at position 13.'
+    )
+  })
 })
