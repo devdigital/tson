@@ -15,21 +15,18 @@ const nonMatchingArrayBracket = position =>
 const nonMatchingObjectBrace = position =>
   new Error(`No closing brace for object started at position ${position}.`)
 
-const objectFactory = () => {
+const objectFactory = position => {
   const result = {}
-  let startPosition = null
-  let endPosition = null
+  let startPosition = position
+  let endPosition = position
+
   let propertyName = null
 
   return {
-    start(position) {
-      startPosition = position
-      endPosition = position
-    },
     startProperty(name) {
       propertyName = name
     },
-    completeProperty(value, position) {
+    completeProperty(value) {
       if (!propertyName) {
         throw new Error('Attempting to complete property with no name.')
       }
@@ -39,7 +36,6 @@ const objectFactory = () => {
       }
 
       result[propertyName] = value
-      endPosition += position
 
       propertyName = null
     },
@@ -55,6 +51,9 @@ const objectFactory = () => {
     },
     getStartPosition() {
       return startPosition
+    },
+    setEndPosition(position) {
+      endPosition = position
     },
   }
 }
@@ -96,16 +95,22 @@ const stripApostrophes = value => {
   return value
 }
 
-const parseObject = (text, startPosition, lastIndex) => {
+const parseObject = (
+  text,
+  objectStartPosition,
+  parseStartPosition,
+  childObject
+) => {
   let state = 'awaiting-property-name'
-  let current = objectFactory()
+  let current = objectFactory(objectStartPosition)
   let arrayValue = arrayFactory()
-  let position = startPosition
+  let position = parseStartPosition
 
-  const isLast = position => position > lastIndex
+  const isLast = position => position > text.length - 1
 
   do {
     let token = lexer(text, position)
+    current.setEndPosition(token.position.end)
 
     switch (state) {
       case 'awaiting-property-name':
@@ -114,6 +119,10 @@ const parseObject = (text, startPosition, lastIndex) => {
             position = token.position.end + 1
 
             if (isLast(position)) {
+              if (childObject) {
+                throw nonMatchingObjectBrace(current.getStartPosition())
+              }
+
               return current.get()
             }
 
@@ -124,12 +133,22 @@ const parseObject = (text, startPosition, lastIndex) => {
             current.startProperty(token.value)
 
             if (isLast(position)) {
+              if (childObject) {
+                throw nonMatchingObjectBrace(current.getStartPosition())
+              }
+
               current.completeProperty(true, token.position.end)
               return current.get()
             }
 
             state = 'property-name'
             break
+          case 'brace-right':
+            if (!childObject) {
+              throw unexpectedTokenError(token.type, position)
+            }
+
+            return current.get()
           default:
             throw unexpectedTokenError(token.type, position)
         }
@@ -197,20 +216,16 @@ const parseObject = (text, startPosition, lastIndex) => {
               throw nonMatchingObjectBrace(position - 1)
             }
 
-            const rightBraceIndex = text.indexOf('}', position)
-            if (rightBraceIndex === -1) {
-              throw nonMatchingObjectBrace(position - 1)
-            }
-
             const { result, endPosition } = parseObject(
               text,
+              position - 1,
               position,
-              rightBraceIndex - 1
+              true // child object
             )
 
             current.completeProperty(result, endPosition)
 
-            position = rightBraceIndex + 1 // skip end brace
+            position = endPosition + 1 // skip end brace
 
             if (isLast(position)) {
               return current.get()
@@ -279,7 +294,7 @@ const parser = text => {
     return {}
   }
 
-  return parseObject(text, 0, text.length - 1).result
+  return parseObject(text, 0, 0, false).result
 }
 
 export default parser

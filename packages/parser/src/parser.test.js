@@ -415,10 +415,13 @@ describe('parser', () => {
     )
   })
 
-  // TODO: review nested objects
-  it('throws exception for nested objects', () => {
-    expect(() => parser('foo:{ bah:{blah:baz}}  ')).toThrow(
-      'Unexpected right brace at position 20.'
-    )
+  it('returns nested objects', () => {
+    expect(parser('foo:{ bah:{blah:baz}}  ')).toEqual({
+      foo: {
+        bah: {
+          blah: 'baz',
+        },
+      },
+    })
   })
 })
