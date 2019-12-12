@@ -1,6 +1,6 @@
 {
   "name": "@tson/parser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TSON (Terse Single Object Notation) parser",
   "main": "dist/parser.js",
   "module": "dist/parser.esm.js",
