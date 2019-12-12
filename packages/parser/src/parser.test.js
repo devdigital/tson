@@ -337,9 +337,88 @@ describe('parser', () => {
     })
   })
 
-  it('throws exception with whitespace before closing brace', () => {
-    expect(() => parser('foo:{foo:bah }')).toThrow(
-      'Unexpected right brace at position 13.'
+  it('returns object for whitespace before closing brace', () => {
+    expect(parser('foo:{foo:bah }')).toEqual({
+      foo: {
+        foo: 'bah',
+      },
+    })
+  })
+
+  it('throws exception for period before brace', () => {
+    expect(() => parser('foo:{foo:bah  .}')).toThrow(
+      'Unexpected period at position 14.'
+    )
+  })
+
+  it('throws exception for no closing brace', () => {
+    expect(() => parser('foo:{')).toThrow(
+      'No closing brace for object started at position 4.'
+    )
+  })
+
+  it('throws exception for no closing brace followed by whitespace', () => {
+    expect(() => parser('foo:{ ')).toThrow(
+      'No closing brace for object started at position 4.'
+    )
+  })
+
+  it('throws exception for no colon before object value', () => {
+    expect(() => parser('foo{')).toThrow('Unexpected left brace at position 3.')
+  })
+
+  it('returns object for whitespace before object value property name', () => {
+    expect(parser('foo:{ bah:baz}')).toEqual({
+      foo: {
+        bah: 'baz',
+      },
+    })
+  })
+
+  it('returns object value with multiple unquoted string properties', () => {
+    expect(parser('foo:{ bah:baz foo:bar     baz:foo }')).toEqual({
+      foo: {
+        bah: 'baz',
+        foo: 'bar',
+        baz: 'foo',
+      },
+    })
+  })
+
+  it('returns object value with multiple quoted string properties', () => {
+    expect(parser("foo:{ bah:'baz  '   foo:'bar'     baz:' foo'}")).toEqual({
+      foo: {
+        bah: 'baz  ',
+        foo: 'bar',
+        baz: ' foo',
+      },
+    })
+  })
+
+  it('returns object value with multiple number properties', () => {
+    expect(
+      parser('foo:{ bah:2 foo:5.67   baz:+56  boo:-7 blah:-9.34  }')
+    ).toEqual({
+      foo: {
+        bah: 2,
+        foo: 5.67,
+        baz: 56,
+        boo: -7,
+        blah: -9.34,
+      },
+    })
+  })
+
+  it('throws exception for duplicate property name in object value', () => {
+    expect(() => parser('foo:{foo:bah foo:baz}')).toThrow(
+      "Property name 'foo' already defined."
+    )
+  })
+
+  // TODO: review nested objects
+  it('throws exception for nested objects', () => {
+    expect(() => parser('foo:{ bah:{blah:baz}}  ')).toThrow(
+      'Unexpected right brace at position 20.'
     )
   })
 })

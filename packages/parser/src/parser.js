@@ -12,6 +12,9 @@ const noPropertyValueError = propertyName =>
 const nonMatchingArrayBracket = position =>
   new Error(`No closing bracket for array started at position ${position}.`)
 
+const nonMatchingObjectBrace = position =>
+  new Error(`No closing brace for object started at position ${position}.`)
+
 const objectFactory = () => {
   const result = {}
   let startPosition = null
@@ -207,7 +210,7 @@ const parseObject = (text, startPosition, lastIndex) => {
 
             current.completeProperty(result, endPosition)
 
-            position = endPosition + 2 // skip end brace
+            position = rightBraceIndex + 1 // skip end brace
 
             if (isLast(position)) {
               return current.get()
