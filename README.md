@@ -1,6 +1,6 @@
 # Terse Single Object Notation (TSON)
 
-Terse Single Object Notation is a format for defining a single object one or more properties, including support for nested properties.
+Terse Single Object Notation is a format for defining a single object with one or more properties, including support for nested properties.
 
 ## Installation
 
