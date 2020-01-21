@@ -322,7 +322,7 @@ const parseObject = (
   } while (true)
 }
 
-const parser = text => {
+const parse = text => {
   if (text === undefined || text === null) {
     throw new Error('No value specified.')
   }
@@ -342,4 +342,4 @@ const parser = text => {
   return parseObject(text, 0, 0, false).result
 }
 
-export default parser
+export default parse

@@ -5,18 +5,18 @@ Terse Single Object Notation is a format for defining a single object with one o
 ## Installation
 
 ```
-yarn add @tson/parser
+yarn add @tson/parse
 ```
 
 ## Parser
 
-The `@tson/parser` package provides a parser for converting a TSON format string to a JavaScript object:
+The `@tson/parse` package provides a parser for converting a TSON format string to a JavaScript object:
 
 ```javascript
-import parser from '@tson/parser'
-// or const parser = require('@tson/parser')
+import parse from '@tson/parse'
+// or const parse = require('@tson/parse')
 
-parser('foo:bar')
+parse('foo:bar')
 //=> { foo: 'bar' }
 ```
 
@@ -44,21 +44,21 @@ The value will be converted to a `number` or a `boolean` if the conversion can b
 You can use quotes to define `string` values, if you wish them to contain whitespace, number or boolean values, or special characters:
 
 ```javascript
-parser("foo:'true'")
+parse("foo:'true'")
 //=> { foo: 'true' }
 ```
 
 Omitting the property value is equivalent to boolean `true`:
 
 ```javascript
-parser('foo')
+parse('foo')
 //=> { foo: true }
 ```
 
 You can define multiple whitespace separated properties:
 
 ```javascript
-parser('foo:bar baz biz:5')
+parse('foo:bar baz biz:5')
 //=> { foo: 'bar', baz: true, biz: 5 }
 ```
 
@@ -67,7 +67,7 @@ parser('foo:bar baz biz:5')
 Arrays are defined with left and right brackets and comma separated values. The values will also be implicitly converted to `number` or `boolean`:
 
 ```javascript
-parser('foo:[5, bar, false]')
+parse('foo:[5, bar, false]')
 //=> { foo: [5, 'bar', false] }
 ```
 
@@ -76,6 +76,6 @@ parser('foo:[5, bar, false]')
 Nested objects are also supported:
 
 ```javascript
-parser('foo:{bar:5 baz:true}}')
+parse('foo:{bar:5 baz:true}}')
 //=> { foo: { bar: 5, baz: true } }
 ```

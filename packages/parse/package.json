@@ -1,16 +1,16 @@
 {
-  "name": "@tson/parser",
+  "name": "@tson/parse",
   "version": "0.1.2",
   "description": "TSON (Terse Single Object Notation) parser",
-  "main": "dist/parser.js",
-  "module": "dist/parser.esm.js",
+  "main": "dist/parse.js",
+  "module": "dist/parse.esm.js",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/devdigital/tson.git",
-    "directory": "packages/parser"
+    "directory": "packages/parse"
   },
-  "homepage": "https://github.com/devdigital/tson/tree/master/packages/parser#readme",
+  "homepage": "https://github.com/devdigital/tson/tree/master/packages/parse#readme",
   "scripts": {
     "prepare": "microbundle --no-compress -o dist",
     "watch": "microbundle watch --no-compress -o dist",
