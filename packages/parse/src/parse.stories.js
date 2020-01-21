@@ -1,6 +1,6 @@
 import React from 'react'
 import { State, Store } from '@sambego/storybook-state'
-import parser from './parser'
+import parse from './parse'
 import styled from '@emotion/styled'
 import ReactJson from 'react-json-view'
 
@@ -49,7 +49,7 @@ export const withDefault = () => (
         }
 
         try {
-          const obj = parser(text)
+          const obj = parse(text)
           store.set({ text, obj, error: null })
         } catch (error) {
           store.set({ text, obj: null, error })
