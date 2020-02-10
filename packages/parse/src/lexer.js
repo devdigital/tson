@@ -1,4 +1,4 @@
-import deepmerge from '@utilz/deepmerge'
+import { deepmerge } from '@utilz/deepmerge'
 import isWhitespace from './utils/is-whitespace'
 import isNumeric from './utils/is-numeric'
 import isLastCharacter from './utils/is-last-character'
