@@ -2,8 +2,9 @@
   "name": "@tson/parse",
   "version": "0.1.4",
   "description": "TSON (Terse Single Object Notation) parser",
-  "main": "dist/parse.js",
-  "module": "dist/parse.esm.js",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -12,12 +13,9 @@
   },
   "homepage": "https://github.com/devdigital/tson/tree/master/packages/parse#readme",
   "scripts": {
-    "prepare": "microbundle --no-compress -o dist",
-    "watch": "microbundle watch --no-compress -o dist",
-    "test": "jest",
-    "test:watch": "jest --watchAll",
-    "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
-    "storybook": "start-storybook"
+    "test": "echo No tests",
+    "build": "tsup",
+    "watch": "tsup --watch"
   },
   "publishConfig": {
     "access": "public"
@@ -27,18 +25,7 @@
     "@utilz/types": "^0.1.11"
   },
   "devDependencies": {
-    "@babel/core": "^7.8.4",
-    "@babel/preset-env": "^7.8.4",
-    "@emotion/core": "^10.0.27",
-    "@emotion/styled": "^10.0.27",
-    "@sambego/storybook-state": "^2.0.1",
-    "@storybook/react": "^5.3.12",
-    "babel-jest": "^25.1.0",
-    "babel-loader": "^8.0.6",
-    "jest": "^25.1.0",
-    "jest-each": "^25.1.0",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
-    "react-json-view": "^1.19.1"
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2"
   }
 }
