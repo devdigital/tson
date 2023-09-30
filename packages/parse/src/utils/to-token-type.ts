@@ -1,4 +1,5 @@
-const toTokenType = type => {
+// TODO: type
+export function toTokenType(type: any) {
   switch (type) {
     case 'string-unquoted':
       return 'unquoted string'
@@ -16,5 +17,3 @@ const toTokenType = type => {
       return type
   }
 }
-
-export default toTokenType

@@ -1,21 +1,22 @@
+//@ts-nocheck
 import { isString } from '@utilz/types'
-import isWhitespace from './utils/is-whitespace'
-import lexer from './lexer'
-import toTokenType from './utils/to-token-type'
+import { isWhitespace } from './utils/is-whitespace'
+import { toTokenType } from './utils/to-token-type'
+import { lexer } from './lexer'
 
 const unexpectedTokenError = (type, position) =>
   new Error(`Unexpected ${toTokenType(type)} at position ${position}.`)
 
-const noPropertyValueError = propertyName =>
+const noPropertyValueError = (propertyName) =>
   new Error(`No property value specified for property '${propertyName}'.`)
 
-const nonMatchingArrayBracket = position =>
+const nonMatchingArrayBracket = (position) =>
   new Error(`No closing bracket for array started at position ${position}.`)
 
-const nonMatchingObjectBrace = position =>
+const nonMatchingObjectBrace = (position) =>
   new Error(`No closing brace for object started at position ${position}.`)
 
-const objectFactory = position => {
+const objectFactory = (position) => {
   const result = {}
   let startPosition = position
   let endPosition = position
@@ -82,7 +83,7 @@ const arrayFactory = () => {
   }
 }
 
-const stripApostrophes = value => {
+const stripApostrophes = (value) => {
   if (value === null || value === undefined) {
     return null
   }
@@ -109,7 +110,7 @@ const parseObject = (
   let arrayValue = arrayFactory()
   let position = parseStartPosition
 
-  const isLast = position => position > text.length - 1
+  const isLast = (position) => position > text.length - 1
 
   do {
     let token = lexer(text, position)
@@ -322,7 +323,7 @@ const parseObject = (
   } while (true)
 }
 
-const parse = text => {
+export const parse = (text) => {
   if (text === undefined || text === null) {
     throw new Error('No value specified.')
   }
@@ -341,5 +342,3 @@ const parse = text => {
 
   return parseObject(text, 0, 0, false).result
 }
-
-export default parse

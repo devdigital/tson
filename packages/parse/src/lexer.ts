@@ -1,10 +1,11 @@
+//@ts-nocheck
 import { deepmerge } from '@utilz/deepmerge'
-import isWhitespace from './utils/is-whitespace'
-import isNumeric from './utils/is-numeric'
-import isLastCharacter from './utils/is-last-character'
-import getCharacter from './utils/get-character'
+import { isWhitespace } from './utils/is-whitespace'
+import { isNumeric } from './utils/is-numeric'
+import { isLastCharacter } from './utils/is-last-character'
+import { getCharacter } from './utils/get-character'
 
-const type = char => {
+const type = (char) => {
   if (char === ':') {
     return 'colon'
   }
@@ -74,10 +75,10 @@ const fromText = (result, position) => {
   })
 }
 
-const nonMatchingApostropheError = position =>
+const nonMatchingApostropheError = (position) =>
   new Error(`Missing ending quotation started at position ${position}.`)
 
-const lexer = (text, position) => {
+export const lexer = (text, position) => {
   if (!text) {
     throw new Error('No text specified.')
   }
@@ -228,5 +229,3 @@ const lexer = (text, position) => {
     position++
   } while (true)
 }
-
-export default lexer
