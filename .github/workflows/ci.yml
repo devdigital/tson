@@ -29,3 +29,5 @@ jobs:
       - name: Release
         if: github.ref == 'refs/heads/main'
         run: yarn semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
