@@ -1,0 +1,5 @@
+{
+  "semantic-release": {
+    "executor": "@theunderscorer/nx-semantic-release:semantic-release"
+  }
+}
