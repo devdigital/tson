@@ -98,61 +98,61 @@ describe('lexer', () => {
     });
   });
 
-  // each([[':'], ['{'], ['}'], ["'"]]).it(
-  //   'returns string without trailing %s',
-  //   (trailing) => {
-  //     expect(lexer(`foo${trailing}`, 0)).toEqual({
-  //       type: 'string-unquoted',
-  //       value: 'foo',
-  //       position: {
-  //         start: 0,
-  //         end: 2,
-  //       },
-  //     })
-  //   }
-  // )
+  it.each([[':'], ['{'], ['}'], ["'"]])(
+    'returns string without trailing %s',
+    (trailing: string) => {
+      expect(lexer(`foo${trailing}`, 0)).toEqual({
+        type: 'string-unquoted',
+        value: 'foo',
+        position: {
+          start: 0,
+          end: 2,
+        },
+      });
+    }
+  );
 
-  // each([[':'], ['{'], ['}'], ["'"]]).it(
-  //   'returns string with trailing %s and prefixed whitespace',
-  //   (trailing) => {
-  //     expect(lexer(`  foo${trailing}`, 2)).toEqual({
-  //       type: 'string-unquoted',
-  //       value: 'foo',
-  //       position: {
-  //         start: 2,
-  //         end: 4,
-  //       },
-  //     })
-  //   }
-  // )
+  it.each([[':'], ['{'], ['}'], ["'"]])(
+    'returns string with trailing %s and prefixed whitespace',
+    (trailing: string) => {
+      expect(lexer(`  foo${trailing}`, 2)).toEqual({
+        type: 'string-unquoted',
+        value: 'foo',
+        position: {
+          start: 2,
+          end: 4,
+        },
+      });
+    }
+  );
 
-  // each(Object.entries(specialCharacters)).it(
-  //   'special character %s returns type %s',
-  //   (char, charType) => {
-  //     expect(lexer(char, 0)).toEqual({
-  //       type: charType,
-  //       value: char,
-  //       position: {
-  //         start: 0,
-  //         end: 0,
-  //       },
-  //     })
-  //   }
-  // )
+  it.each(Object.entries(specialCharacters))(
+    'special character %s returns type %s',
+    (char: string, charType: string) => {
+      expect(lexer(char, 0)).toEqual({
+        type: charType,
+        value: char,
+        position: {
+          start: 0,
+          end: 0,
+        },
+      });
+    }
+  );
 
-  // each(Object.entries(specialCharacters)).it(
-  //   'special character %s prefixing string returns type %s',
-  //   (char, charType) => {
-  //     expect(lexer(`${char}foo`, 0)).toEqual({
-  //       type: charType,
-  //       value: char,
-  //       position: {
-  //         start: 0,
-  //         end: 0,
-  //       },
-  //     })
-  //   }
-  // )
+  it.each(Object.entries(specialCharacters))(
+    'special character %s prefixing string returns type %s',
+    (char: string, charType: string) => {
+      expect(lexer(`${char}foo`, 0)).toEqual({
+        type: charType,
+        value: char,
+        position: {
+          start: 0,
+          end: 0,
+        },
+      });
+    }
+  );
 
   it('returns period included in string', () => {
     expect(lexer('  foo.', 2)).toEqual({

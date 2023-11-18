@@ -1,19 +1,18 @@
-// TODO: type
-export function toTokenType(type: any) {
+export function toTokenType(type: string) {
   switch (type) {
     case 'string-unquoted':
-      return 'unquoted string'
+      return 'unquoted string';
     case 'string-quoted':
-      return 'quoted string'
+      return 'quoted string';
     case 'brace-left':
-      return 'left brace'
+      return 'left brace';
     case 'brace-right':
-      return 'right brace'
+      return 'right brace';
     case 'bracket-left':
-      return 'left bracket'
+      return 'left bracket';
     case 'bracket-right':
-      return 'right bracket'
+      return 'right bracket';
     default:
-      return type
+      return type;
   }
 }
