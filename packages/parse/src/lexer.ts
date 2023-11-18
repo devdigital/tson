@@ -1,49 +1,49 @@
 //@ts-nocheck
-import { deepmerge } from '@utilz/deepmerge'
-import { isWhitespace } from './utils/is-whitespace'
-import { isNumeric } from './utils/is-numeric'
-import { isLastCharacter } from './utils/is-last-character'
-import { getCharacter } from './utils/get-character'
+import { deepmerge } from '@utilz/deepmerge';
+import { isWhitespace } from './utils/is-whitespace';
+import { isNumeric } from './utils/is-numeric';
+import { isLastCharacter } from './utils/is-last-character';
+import { getCharacter } from './utils/get-character';
 
 const type = (char) => {
   if (char === ':') {
-    return 'colon'
+    return 'colon';
   }
 
   if (char === '.') {
-    return 'period'
+    return 'period';
   }
 
   if (char === "'") {
-    return 'apostrophe'
+    return 'apostrophe';
   }
 
   if (char === '{') {
-    return 'brace-left'
+    return 'brace-left';
   }
 
   if (char === '}') {
-    return 'brace-right'
+    return 'brace-right';
   }
 
   if (char === '[') {
-    return 'bracket-left'
+    return 'bracket-left';
   }
 
   if (char === ']') {
-    return 'bracket-right'
+    return 'bracket-right';
   }
 
   if (char === ',') {
-    return 'comma'
+    return 'comma';
   }
 
   if (isWhitespace(char)) {
-    return 'whitespace'
+    return 'whitespace';
   }
 
-  return 'text'
-}
+  return 'text';
+};
 
 const fromText = (result, position) => {
   if (result.value === 'true') {
@@ -51,7 +51,7 @@ const fromText = (result, position) => {
       type: 'boolean',
       value: true,
       position: { end: position },
-    })
+    });
   }
 
   if (result.value === 'false') {
@@ -59,7 +59,7 @@ const fromText = (result, position) => {
       type: 'boolean',
       value: false,
       position: { end: position },
-    })
+    });
   }
 
   if (isNumeric(result.value)) {
@@ -67,35 +67,39 @@ const fromText = (result, position) => {
       type: 'number',
       value: parseFloat(result.value),
       position: { end: position },
-    })
+    });
   }
 
   return deepmerge(result, {
     position: { end: position },
-  })
-}
+  });
+};
 
-const nonMatchingApostropheError = (position) =>
-  new Error(`Missing ending quotation started at position ${position}.`)
+class NonMatchingApostropheError extends Error {
+  constructor(position) {
+    super(`Missing ending quotation started at position ${position}.`);
+    this.position = position;
+  }
+}
 
 export const lexer = (text, position) => {
   if (!text) {
-    throw new Error('No text specified.')
+    throw new Error('No text specified.');
   }
 
   if (!position && position !== 0) {
-    throw new Error('No position specified.')
+    throw new Error('No position specified.');
   }
 
   if (position < 0) {
-    throw new Error('Invalid position.')
+    throw new Error('Invalid position.');
   }
 
   if (position > text.length - 1) {
-    throw new Error('Invalid position.')
+    throw new Error('Invalid position.');
   }
 
-  let state = 'start'
+  let state = 'start';
   let result = {
     type: null,
     value: '',
@@ -103,28 +107,28 @@ export const lexer = (text, position) => {
       start: null,
       end: null,
     },
-  }
+  };
 
-  const charAt = getCharacter(text)
-  const isLast = isLastCharacter(text)
+  const charAt = getCharacter(text);
+  const isLast = isLastCharacter(text);
 
   do {
     switch (state) {
       case 'start':
-        const charType = type(charAt(position))
+        const charType = type(charAt(position));
 
         switch (charType) {
           case 'whitespace':
-            result.type = 'whitespace'
-            result.position.start = position
-            result.value += charAt(position)
+            result.type = 'whitespace';
+            result.position.start = position;
+            result.value += charAt(position);
 
             if (isLast(position)) {
-              return deepmerge(result, { position: { end: position } })
+              return deepmerge(result, { position: { end: position } });
             }
 
-            state = 'whitespace'
-            break
+            state = 'whitespace';
+            break;
           case 'colon':
           case 'brace-left':
           case 'brace-right':
@@ -136,56 +140,56 @@ export const lexer = (text, position) => {
               type: charType,
               value: charAt(position),
               position: { start: position, end: position },
-            }
+            };
           case 'apostrophe':
-            result.position.start = position
-            result.value += charAt(position)
-            result.type = 'string-quoted'
+            result.position.start = position;
+            result.value += charAt(position);
+            result.type = 'string-quoted';
 
             if (isLast(position)) {
-              throw new nonMatchingApostropheError(result.position.start)
+              throw new NonMatchingApostropheError(result.position.start);
             }
 
-            state = 'text-quoted'
-            break
+            state = 'text-quoted';
+            break;
           case 'text':
-            result.position.start = position
-            result.value += charAt(position)
-            result.type = 'string-unquoted'
+            result.position.start = position;
+            result.value += charAt(position);
+            result.type = 'string-unquoted';
 
             if (isLast(position)) {
-              return fromText(result, position)
+              return fromText(result, position);
             }
 
-            state = 'text-unquoted'
-            break
+            state = 'text-unquoted';
+            break;
           default:
-            throw new Error(`Unexpected character type '${charType}'.`)
+            throw new Error(`Unexpected character type '${charType}'.`);
         }
-        break
+        break;
       case 'whitespace':
         if (isWhitespace(charAt(position))) {
-          result.value += charAt(position)
+          result.value += charAt(position);
 
           if (isLast(position)) {
-            return deepmerge(result, { position: { end: position } })
+            return deepmerge(result, { position: { end: position } });
           }
         } else {
-          return deepmerge(result, { position: { end: position - 1 } })
+          return deepmerge(result, { position: { end: position - 1 } });
         }
-        break
+        break;
       case 'text-unquoted':
-        const characterType = type(charAt(position))
+        const characterType = type(charAt(position));
         switch (characterType) {
           case 'text':
           case 'period':
-            result.value += charAt(position)
+            result.value += charAt(position);
 
             if (isLast(position)) {
-              return fromText(result, position)
+              return fromText(result, position);
             }
 
-            break
+            break;
           case 'apostrophe':
           case 'colon':
           case 'brace-left':
@@ -194,11 +198,11 @@ export const lexer = (text, position) => {
           case 'comma':
           case 'bracket-left':
           case 'bracket-right':
-            return fromText(result, position - 1)
+            return fromText(result, position - 1);
           default:
-            throw new Error(`Unexpected character type '${characterType}'.`)
+            throw new Error(`Unexpected character type '${characterType}'.`);
         }
-        break
+        break;
       case 'text-quoted':
         switch (type(charAt(position))) {
           case 'text':
@@ -210,22 +214,22 @@ export const lexer = (text, position) => {
           case 'comma':
           case 'bracket-left':
           case 'bracket-right':
-            result.value += charAt(position)
+            result.value += charAt(position);
 
             if (isLast(position)) {
-              throw nonMatchingApostropheError(result.position.start)
+              throw new NonMatchingApostropheError(result.position.start);
             }
 
-            break
+            break;
           case 'apostrophe':
-            result.value += charAt(position)
-            return deepmerge(result, { position: { end: position } })
+            result.value += charAt(position);
+            return deepmerge(result, { position: { end: position } });
         }
-        break
+        break;
       default:
-        throw new Error(`Unexpected state '${state}'.`)
+        throw new Error(`Unexpected state '${state}'.`);
     }
 
-    position++
-  } while (true)
-}
+    position++;
+  } while (true);
+};

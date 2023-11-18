@@ -3,14 +3,16 @@
   "version": "0.0.0",
   "license": "MIT",
   "private": true,
+  "packageManager": "yarn@4.0.0",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
+    "test": "nx run-many --target=test",
     "build": "nx run-many --target=build"
   },
   "devDependencies": {
     "@nx/js": "16.9.1",
     "nx": "16.9.1"
-  },
-  "workspaces": [
-    "packages/*"
-  ]
+  }
 }

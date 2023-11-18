@@ -1,103 +1,115 @@
 //@ts-nocheck
-import { isString } from '@utilz/types'
-import { isWhitespace } from './utils/is-whitespace'
-import { toTokenType } from './utils/to-token-type'
-import { lexer } from './lexer'
+import { isString } from '@utilz/types';
+import { isWhitespace } from './utils/is-whitespace';
+import { toTokenType } from './utils/to-token-type';
+import { lexer } from './lexer';
 
-const unexpectedTokenError = (type, position) =>
-  new Error(`Unexpected ${toTokenType(type)} at position ${position}.`)
+class UnexpectedTokenError extends Error {
+  constructor(type, position) {
+    super(`Unexpected ${toTokenType(type)} at position ${position}.`);
+  }
+}
 
-const noPropertyValueError = (propertyName) =>
-  new Error(`No property value specified for property '${propertyName}'.`)
+class NoPropertyValueError extends Error {
+  constructor(propertyName) {
+    super(`No property value specified for property '${propertyName}'.`);
+  }
+}
 
-const nonMatchingArrayBracket = (position) =>
-  new Error(`No closing bracket for array started at position ${position}.`)
+class NonMatchingArrayBracket extends Error {
+  constructor(position) {
+    super(`No closing bracket for array started at position ${position}.`);
+  }
+}
 
-const nonMatchingObjectBrace = (position) =>
-  new Error(`No closing brace for object started at position ${position}.`)
+class NonMatchingObjectBrace extends Error {
+  constructor(position) {
+    super(`No closing brace for object started at position ${position}.`);
+  }
+}
 
 const objectFactory = (position) => {
-  const result = {}
-  let startPosition = position
-  let endPosition = position
+  const result = {};
+  let startPosition = position;
+  let endPosition = position;
 
-  let propertyName = null
+  let propertyName = null;
 
   return {
     startProperty(name) {
-      propertyName = name
+      propertyName = name;
     },
     completeProperty(value) {
       if (!propertyName) {
-        throw new Error('Attempting to complete property with no name.')
+        throw new Error('Attempting to complete property with no name.');
       }
 
       if (result.hasOwnProperty(propertyName)) {
-        throw new Error(`Property name '${propertyName}' already defined.`)
+        throw new Error(`Property name '${propertyName}' already defined.`);
       }
 
-      result[propertyName] = value
+      result[propertyName] = value;
 
-      propertyName = null
+      propertyName = null;
     },
     get() {
       return {
         result,
         startPosition,
         endPosition,
-      }
+      };
     },
     propertyName() {
-      return propertyName
+      return propertyName;
     },
     getStartPosition() {
-      return startPosition
+      return startPosition;
     },
     getEndPosition() {
-      return endPosition
+      return endPosition;
     },
     setEndPosition(position) {
-      endPosition = position
+      endPosition = position;
     },
-  }
-}
+  };
+};
 
 const arrayFactory = () => {
-  let result = []
-  let startPosition = null
+  let result = [];
+  let startPosition = null;
 
   return {
     start(position) {
-      startPosition = position
-      result = []
+      startPosition = position;
+      result = [];
     },
     add(value) {
-      result.push(value)
+      result.push(value);
     },
     get() {
-      return result
+      return result;
     },
     getStartPosition() {
-      return startPosition
+      return startPosition;
     },
-  }
-}
+  };
+};
 
 const stripApostrophes = (value) => {
   if (value === null || value === undefined) {
-    return null
+    return null;
   }
 
   if (value.length === 1) {
-    return value
+    return value;
   }
 
   if (value[0] === "'" && value[value.length - 1] === "'") {
-    return value.substring(1, value.length - 1)
+    return value.substring(1, value.length - 1);
   }
 
-  return value
-}
+  return value;
+};
 
 const parseObject = (
   text,
@@ -105,130 +117,130 @@ const parseObject = (
   parseStartPosition,
   childObject
 ) => {
-  let state = 'awaiting-property-name'
-  let current = objectFactory(objectStartPosition)
-  let arrayValue = arrayFactory()
-  let position = parseStartPosition
+  let state = 'awaiting-property-name';
+  let current = objectFactory(objectStartPosition);
+  let arrayValue = arrayFactory();
+  let position = parseStartPosition;
 
-  const isLast = (position) => position > text.length - 1
+  const isLast = (position) => position > text.length - 1;
 
   do {
-    let token = lexer(text, position)
-    current.setEndPosition(token.position.end)
+    let token = lexer(text, position);
+    current.setEndPosition(token.position.end);
 
     switch (state) {
       case 'awaiting-property-name':
         switch (token.type) {
           case 'whitespace':
-            position = token.position.end + 1
+            position = token.position.end + 1;
 
             if (isLast(position)) {
               if (childObject) {
-                throw nonMatchingObjectBrace(current.getStartPosition())
+                throw new NonMatchingObjectBrace(current.getStartPosition());
               }
 
-              return current.get()
+              return current.get();
             }
 
-            break
+            break;
           case 'string-unquoted':
           case 'number':
-            position = token.position.end + 1
-            current.startProperty(token.value)
+            position = token.position.end + 1;
+            current.startProperty(token.value);
 
             if (isLast(position)) {
               if (childObject) {
-                throw nonMatchingObjectBrace(current.getStartPosition())
+                throw new NonMatchingObjectBrace(current.getStartPosition());
               }
 
-              current.completeProperty(true)
-              return current.get()
+              current.completeProperty(true);
+              return current.get();
             }
 
-            state = 'property-name'
-            break
+            state = 'property-name';
+            break;
           case 'brace-right':
             if (!childObject) {
-              throw unexpectedTokenError(token.type, position)
+              throw new UnexpectedTokenError(token.type, position);
             }
 
-            return current.get()
+            return current.get();
           default:
-            throw unexpectedTokenError(token.type, position)
+            throw new UnexpectedTokenError(token.type, position);
         }
-        break
+        break;
       case 'property-name':
         switch (token.type) {
           case 'colon':
-            position = token.position.end + 1
+            position = token.position.end + 1;
 
             if (isLast(position)) {
-              throw noPropertyValueError(current.propertyName())
+              throw new NoPropertyValueError(current.propertyName());
             }
 
-            state = 'property-value'
-            break
+            state = 'property-value';
+            break;
           case 'whitespace':
-            current.completeProperty(true)
-            position = token.position.end + 1
+            current.completeProperty(true);
+            position = token.position.end + 1;
 
             if (isLast(position)) {
-              return current.get()
+              return current.get();
             }
 
-            state = 'awaiting-property-name'
-            break
+            state = 'awaiting-property-name';
+            break;
           case 'brace-right':
             if (!childObject) {
-              throw unexpectedTokenError(token.type, position)
+              throw new UnexpectedTokenError(token.type, position);
             }
 
-            current.completeProperty(true)
-            position = token.position.end + 2 // skip end brace
+            current.completeProperty(true);
+            position = token.position.end + 2; // skip end brace
 
             if (isLast(position)) {
-              return current.get()
+              return current.get();
             }
 
-            state = 'awaiting-property-name'
-            break
+            state = 'awaiting-property-name';
+            break;
           default:
-            throw unexpectedTokenError(token.type, position)
+            throw new UnexpectedTokenError(token.type, position);
         }
-        break
+        break;
       case 'property-value':
         switch (token.type) {
           case 'whitespace':
-            throw new unexpectedTokenError(token.type, position)
+            throw new UnexpectedTokenError(token.type, position);
           case 'string-unquoted':
           case 'string-quoted':
           case 'number':
           case 'boolean':
-            current.completeProperty(stripApostrophes(token.value))
-            position = token.position.end + 1
+            current.completeProperty(stripApostrophes(token.value));
+            position = token.position.end + 1;
 
             if (isLast(position)) {
-              return current.get()
+              return current.get();
             }
 
-            state = 'awaiting-property-name'
-            break
+            state = 'awaiting-property-name';
+            break;
           case 'bracket-left':
-            arrayValue.start(position)
+            arrayValue.start(position);
 
-            position = token.position.end + 1
+            position = token.position.end + 1;
 
             if (isLast(position)) {
-              throw nonMatchingArrayBracket(arrayValue.getStartPosition())
+              throw new NonMatchingArrayBracket(arrayValue.getStartPosition());
             }
 
-            state = 'array-value'
-            break
+            state = 'array-value';
+            break;
           case 'brace-left':
-            position = token.position.end + 1
+            position = token.position.end + 1;
 
             if (isLast(position)) {
-              throw nonMatchingObjectBrace(position - 1)
+              throw new NonMatchingObjectBrace(position - 1);
             }
 
             const { result, endPosition } = parseObject(
@@ -236,109 +248,109 @@ const parseObject = (
               position - 1,
               position,
               true // child object
-            )
+            );
 
-            current.completeProperty(result)
+            current.completeProperty(result);
 
-            position = endPosition + 1 // skip end brace
+            position = endPosition + 1; // skip end brace
 
             if (isLast(position)) {
-              return current.get()
+              return current.get();
             }
 
-            state = 'awaiting-property-name'
-            break
+            state = 'awaiting-property-name';
+            break;
           default:
-            throw unexpectedTokenError(token.type, position)
+            throw new UnexpectedTokenError(token.type, position);
         }
-        break
+        break;
       case 'array-value':
         switch (token.type) {
           case 'string-quoted':
           case 'string-unquoted':
           case 'number':
           case 'boolean':
-            arrayValue.add(stripApostrophes(token.value))
-            position = token.position.end + 1
+            arrayValue.add(stripApostrophes(token.value));
+            position = token.position.end + 1;
 
             if (isLast(position)) {
-              throw nonMatchingArrayBracket(arrayValue.getStartPosition())
+              throw new NonMatchingArrayBracket(arrayValue.getStartPosition());
             }
 
-            break
+            break;
           case 'whitespace':
-            position = token.position.end + 1
+            position = token.position.end + 1;
 
             if (isLast(position)) {
-              throw nonMatchingArrayBracket(arrayValue.getStartPosition())
+              throw new NonMatchingArrayBracket(arrayValue.getStartPosition());
             }
 
-            break
+            break;
           case 'comma':
-            position = token.position.end + 1
-            state = 'array-comma'
-            break
+            position = token.position.end + 1;
+            state = 'array-comma';
+            break;
           case 'bracket-right':
-            current.completeProperty(arrayValue.get())
-            position = token.position.end + 1
+            current.completeProperty(arrayValue.get());
+            position = token.position.end + 1;
 
             if (isLast(position)) {
-              return current.get()
+              return current.get();
             }
 
-            state = 'awaiting-property-name'
-            break
+            state = 'awaiting-property-name';
+            break;
           default:
-            throw unexpectedTokenError(token.type, position)
+            throw new UnexpectedTokenError(token.type, position);
         }
-        break
+        break;
       case 'array-comma':
         switch (token.type) {
           case 'string-quoted':
           case 'string-unquoted':
           case 'number':
           case 'boolean':
-            arrayValue.add(stripApostrophes(token.value))
-            position = token.position.end + 1
+            arrayValue.add(stripApostrophes(token.value));
+            position = token.position.end + 1;
 
             if (isLast(position)) {
-              throw nonMatchingArrayBracket(arrayValue.getStartPosition())
+              throw new NonMatchingArrayBracket(arrayValue.getStartPosition());
             }
 
-            state = 'array-value'
-            break
+            state = 'array-value';
+            break;
           case 'whitespace':
-            position = token.position.end + 1
+            position = token.position.end + 1;
 
             if (isLast(position)) {
-              throw nonMatchingArrayBracket(arrayValue.getStartPosition())
+              throw new NonMatchingArrayBracket(arrayValue.getStartPosition());
             }
 
-            break
+            break;
           default:
-            throw unexpectedTokenError(token.type, position)
+            throw new UnexpectedTokenError(token.type, position);
         }
-        break
+        break;
     }
-  } while (true)
-}
+  } while (true);
+};
 
 export const parse = (text) => {
   if (text === undefined || text === null) {
-    throw new Error('No value specified.')
+    throw new Error('No value specified.');
   }
 
   if (!isString(text)) {
-    throw new Error('The value specified must be a string.')
+    throw new Error('The value specified must be a string.');
   }
 
   if (text.length === 0) {
-    return {}
+    return {};
   }
 
   if (isWhitespace(text)) {
-    return {}
+    return {};
   }
 
-  return parseObject(text, 0, 0, false).result
-}
+  return parseObject(text, 0, 0, false).result;
+};
