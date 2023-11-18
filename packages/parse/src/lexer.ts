@@ -3,6 +3,7 @@ import { isWhitespace } from './utils/is-whitespace';
 import { isNumeric } from './utils/is-numeric';
 import { isLastCharacter } from './utils/is-last-character';
 import { getCharacter } from './utils/get-character';
+import { NonMatchingApostropheError } from './lexer-errors';
 
 const type = (char: string) => {
   if (char === ':') {
@@ -82,12 +83,6 @@ const fromText = (result: LexerResult, position: number): LexerResult => {
     position: { end: position },
   });
 };
-
-class NonMatchingApostropheError extends Error {
-  constructor(position: number) {
-    super(`Missing ending quotation started at position ${position}.`);
-  }
-}
 
 export const lexer = (text: string, position: number): LexerResult => {
   if (!text) {
