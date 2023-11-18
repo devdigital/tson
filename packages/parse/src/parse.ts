@@ -1,43 +1,12 @@
 import { isString } from '@utilz/types';
 import { isWhitespace } from './utils/is-whitespace';
-import { toTokenType } from './utils/to-token-type';
 import { lexer } from './lexer';
-
-class UnexpectedTokenError extends Error {
-  constructor(type: string | null, position: number) {
-    super(
-      type
-        ? `Unexpected ${toTokenType(type)} at position ${position}.`
-        : `Unexpected token at position ${position}.`
-    );
-  }
-}
-
-class NoPropertyValueError extends Error {
-  constructor(propertyName: string | null) {
-    super(
-      propertyName
-        ? `No property value specified for property '${propertyName}'.`
-        : 'No property value specified.'
-    );
-  }
-}
-
-class NonMatchingArrayBracket extends Error {
-  constructor(position: number | null) {
-    super(
-      position
-        ? `No closing bracket for array started at position ${position}.`
-        : 'No closing bracket for array.'
-    );
-  }
-}
-
-class NonMatchingObjectBrace extends Error {
-  constructor(position: number) {
-    super(`No closing brace for object started at position ${position}.`);
-  }
-}
+import {
+  NoPropertyValueError,
+  NonMatchingArrayBracket,
+  NonMatchingObjectBrace,
+  UnexpectedTokenError,
+} from './parse-errors';
 
 const objectFactory = (position: number) => {
   const result: Record<string, unknown> = {};
