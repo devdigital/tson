@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/devdigital/tson/compare/parse-v1.0.0...parse-v1.0.1) (2023-11-18)
+
+
+### Bug Fixes
+
+* move error ([#22](https://github.com/devdigital/tson/issues/22)) ([a0c13d4](https://github.com/devdigital/tson/commit/a0c13d4609805c35cdbb7247c345f628c50da10b))
+
 # 1.0.0 (2023-11-18)
 
 
