@@ -1,9 +1,11 @@
 {
-  "semantic-release": {
-    "executor": "@theunderscorer/nx-semantic-release:semantic-release",
-    "options": {
-      "buildTarget": "build",
-      "outputPath": "./dist"
+  "targets": {
+    "semantic-release": {
+      "executor": "@theunderscorer/nx-semantic-release:semantic-release",
+      "options": {
+        "buildTarget": "build",
+        "outputPath": "./dist"
+      }
     }
   }
 }
