@@ -89,7 +89,7 @@ class NonMatchingApostropheError extends Error {
   }
 }
 
-export const lexer = (text: string, position: number) => {
+export const lexer = (text: string, position: number): LexerResult => {
   if (!text) {
     throw new Error('No text specified.');
   }

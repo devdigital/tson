@@ -3,18 +3,6 @@ import { specialCharacters } from './utils/special-characters';
 import { toTokenType } from './utils/to-token-type';
 
 describe('parse', () => {
-  it('throws exception for boolean value', () => {
-    expect(() => parse(true)).toThrow('The value specified must be a string.');
-  });
-
-  it('throws exception for number value', () => {
-    expect(() => parse(5)).toThrow('The value specified must be a string.');
-  });
-
-  it('throws exception for object value', () => {
-    expect(() => parse({})).toThrow('The value specified must be a string.');
-  });
-
   it('returns empty object for empty string', () => {
     expect(parse('')).toEqual({});
   });

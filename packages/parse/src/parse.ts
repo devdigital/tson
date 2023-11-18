@@ -1,45 +1,56 @@
-//@ts-nocheck
 import { isString } from '@utilz/types';
 import { isWhitespace } from './utils/is-whitespace';
 import { toTokenType } from './utils/to-token-type';
 import { lexer } from './lexer';
 
 class UnexpectedTokenError extends Error {
-  constructor(type, position) {
-    super(`Unexpected ${toTokenType(type)} at position ${position}.`);
+  constructor(type: string | null, position: number) {
+    super(
+      type
+        ? `Unexpected ${toTokenType(type)} at position ${position}.`
+        : `Unexpected token at position ${position}.`
+    );
   }
 }
 
 class NoPropertyValueError extends Error {
-  constructor(propertyName) {
-    super(`No property value specified for property '${propertyName}'.`);
+  constructor(propertyName: string | null) {
+    super(
+      propertyName
+        ? `No property value specified for property '${propertyName}'.`
+        : 'No property value specified.'
+    );
   }
 }
 
 class NonMatchingArrayBracket extends Error {
-  constructor(position) {
-    super(`No closing bracket for array started at position ${position}.`);
+  constructor(position: number | null) {
+    super(
+      position
+        ? `No closing bracket for array started at position ${position}.`
+        : 'No closing bracket for array.'
+    );
   }
 }
 
 class NonMatchingObjectBrace extends Error {
-  constructor(position) {
+  constructor(position: number) {
     super(`No closing brace for object started at position ${position}.`);
   }
 }
 
-const objectFactory = (position) => {
-  const result = {};
+const objectFactory = (position: number) => {
+  const result: Record<string, unknown> = {};
   let startPosition = position;
   let endPosition = position;
 
-  let propertyName = null;
+  let propertyName: string | null = null;
 
   return {
-    startProperty(name) {
+    startProperty(name: string) {
       propertyName = name;
     },
-    completeProperty(value) {
+    completeProperty(value: unknown) {
       if (!propertyName) {
         throw new Error('Attempting to complete property with no name.');
       }
@@ -68,22 +79,22 @@ const objectFactory = (position) => {
     getEndPosition() {
       return endPosition;
     },
-    setEndPosition(position) {
+    setEndPosition(position: number) {
       endPosition = position;
     },
   };
 };
 
 const arrayFactory = () => {
-  let result = [];
-  let startPosition = null;
+  let result: (string | null)[] = [];
+  let startPosition: number | null = null;
 
   return {
-    start(position) {
+    start(position: number) {
       startPosition = position;
       result = [];
     },
-    add(value) {
+    add(value: string | null) {
       result.push(value);
     },
     get() {
@@ -95,8 +106,8 @@ const arrayFactory = () => {
   };
 };
 
-const stripApostrophes = (value) => {
-  if (value === null || value === undefined) {
+const stripApostrophes = (value: string): string | null => {
+  if (value == null) {
     return null;
   }
 
@@ -112,27 +123,27 @@ const stripApostrophes = (value) => {
 };
 
 const parseObject = (
-  text,
-  objectStartPosition,
-  parseStartPosition,
-  childObject
+  text: string,
+  objectStartPosition: number,
+  parseStartPosition: number,
+  childObject: Record<string, unknown> | boolean
 ) => {
   let state = 'awaiting-property-name';
   let current = objectFactory(objectStartPosition);
   let arrayValue = arrayFactory();
   let position = parseStartPosition;
 
-  const isLast = (position) => position > text.length - 1;
+  const isLast = (position: number) => position > text.length - 1;
 
   do {
     let token = lexer(text, position);
-    current.setEndPosition(token.position.end);
+    current.setEndPosition(token.position.end ?? 0);
 
     switch (state) {
       case 'awaiting-property-name':
         switch (token.type) {
           case 'whitespace':
-            position = token.position.end + 1;
+            position = (token.position.end ?? 0) + 1;
 
             if (isLast(position)) {
               if (childObject) {
@@ -145,7 +156,7 @@ const parseObject = (
             break;
           case 'string-unquoted':
           case 'number':
-            position = token.position.end + 1;
+            position = (token.position.end ?? 0) + 1;
             current.startProperty(token.value);
 
             if (isLast(position)) {
@@ -172,7 +183,7 @@ const parseObject = (
       case 'property-name':
         switch (token.type) {
           case 'colon':
-            position = token.position.end + 1;
+            position = (token.position.end ?? 0) + 1;
 
             if (isLast(position)) {
               throw new NoPropertyValueError(current.propertyName());
@@ -182,7 +193,7 @@ const parseObject = (
             break;
           case 'whitespace':
             current.completeProperty(true);
-            position = token.position.end + 1;
+            position = (token.position.end ?? 0) + 1;
 
             if (isLast(position)) {
               return current.get();
@@ -196,7 +207,7 @@ const parseObject = (
             }
 
             current.completeProperty(true);
-            position = token.position.end + 2; // skip end brace
+            position = (token.position.end ?? 0) + 2; // skip end brace
 
             if (isLast(position)) {
               return current.get();
@@ -217,7 +228,7 @@ const parseObject = (
           case 'number':
           case 'boolean':
             current.completeProperty(stripApostrophes(token.value));
-            position = token.position.end + 1;
+            position = (token.position.end ?? 0) + 1;
 
             if (isLast(position)) {
               return current.get();
@@ -228,7 +239,7 @@ const parseObject = (
           case 'bracket-left':
             arrayValue.start(position);
 
-            position = token.position.end + 1;
+            position = (token.position.end ?? 0) + 1;
 
             if (isLast(position)) {
               throw new NonMatchingArrayBracket(arrayValue.getStartPosition());
@@ -237,7 +248,7 @@ const parseObject = (
             state = 'array-value';
             break;
           case 'brace-left':
-            position = token.position.end + 1;
+            position = (token.position.end ?? 0) + 1;
 
             if (isLast(position)) {
               throw new NonMatchingObjectBrace(position - 1);
@@ -271,7 +282,7 @@ const parseObject = (
           case 'number':
           case 'boolean':
             arrayValue.add(stripApostrophes(token.value));
-            position = token.position.end + 1;
+            position = (token.position.end ?? 0) + 1;
 
             if (isLast(position)) {
               throw new NonMatchingArrayBracket(arrayValue.getStartPosition());
@@ -279,7 +290,7 @@ const parseObject = (
 
             break;
           case 'whitespace':
-            position = token.position.end + 1;
+            position = (token.position.end ?? 0) + 1;
 
             if (isLast(position)) {
               throw new NonMatchingArrayBracket(arrayValue.getStartPosition());
@@ -287,12 +298,12 @@ const parseObject = (
 
             break;
           case 'comma':
-            position = token.position.end + 1;
+            position = (token.position.end ?? 0) + 1;
             state = 'array-comma';
             break;
           case 'bracket-right':
             current.completeProperty(arrayValue.get());
-            position = token.position.end + 1;
+            position = (token.position.end ?? 0) + 1;
 
             if (isLast(position)) {
               return current.get();
@@ -311,7 +322,7 @@ const parseObject = (
           case 'number':
           case 'boolean':
             arrayValue.add(stripApostrophes(token.value));
-            position = token.position.end + 1;
+            position = (token.position.end ?? 0) + 1;
 
             if (isLast(position)) {
               throw new NonMatchingArrayBracket(arrayValue.getStartPosition());
@@ -320,7 +331,7 @@ const parseObject = (
             state = 'array-value';
             break;
           case 'whitespace':
-            position = token.position.end + 1;
+            position = (token.position.end ?? 0) + 1;
 
             if (isLast(position)) {
               throw new NonMatchingArrayBracket(arrayValue.getStartPosition());
@@ -335,8 +346,8 @@ const parseObject = (
   } while (true);
 };
 
-export const parse = (text) => {
-  if (text === undefined || text === null) {
+export const parse = (text: string) => {
+  if (text == null) {
     throw new Error('No value specified.');
   }
 
