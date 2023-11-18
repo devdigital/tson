@@ -9,7 +9,8 @@
   ],
   "scripts": {
     "test": "nx run-many --target=test",
-    "build": "nx run-many --target=build"
+    "build": "nx run-many --target=build",
+    "semantic-release": "nx run-many --target=semantic-release --parallel=false"
   },
   "devDependencies": {
     "nx": "17.1.2"

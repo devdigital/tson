@@ -24,3 +24,6 @@ jobs:
         run: yarn build
       - name: Run tests
         run: yarn test
+      - name: Release
+        if: github.ref == 'refs/heads/main'
+        run: yarn semantic-release
