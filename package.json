@@ -1,24 +1,18 @@
 {
   "name": "root",
+  "version": "0.0.0",
+  "license": "MIT",
   "private": true,
+  "packageManager": "yarn@4.0.0",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "commit": "./node_modules/cz-customizable/standalone.js",
-    "test": "lerna run test",
-    "clean": "lerna clean",
-    "bootstrap": "lerna bootstrap",
-    "prepare": "lerna run prepare",
-    "release": "lerna publish",
-    "release:canary": "lerna publish --canary",
-    "release:next": "lerna publish --dist-tag=next --bump=prerelease",
-    "diff": "lerna diff",
-    "changed": "lerna changed"
+    "test": "nx run-many --target=test",
+    "build": "nx run-many --target=build",
+    "semantic-release": "nx run-many --target=semantic-release --parallel=false"
   },
   "devDependencies": {
-    "cz-customizable": "^6.2.0",
-    "lerna": "^3.20.2",
-    "microbundle": "^0.11.0"
+    "nx": "17.1.2"
   }
 }

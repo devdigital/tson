@@ -1,10 +1,6 @@
-const isWhitespace = require('./is-whitespace')
+import { isWhitespace } from './is-whitespace'
 
 describe('isWhitespace', () => {
-  it('throws exception for undefined value', () => {
-    expect(() => isWhitespace()).toThrow('No character specified.')
-  })
-
   it('returns true for whitespace character', () => {
     expect(isWhitespace(' '[0])).toBe(true)
   })
