@@ -1,11 +1,10 @@
-//@ts-nocheck
 import { deepmerge } from '@utilz/deepmerge';
 import { isWhitespace } from './utils/is-whitespace';
 import { isNumeric } from './utils/is-numeric';
 import { isLastCharacter } from './utils/is-last-character';
 import { getCharacter } from './utils/get-character';
 
-const type = (char) => {
+const type = (char: string) => {
   if (char === ':') {
     return 'colon';
   }
@@ -45,7 +44,16 @@ const type = (char) => {
   return 'text';
 };
 
-const fromText = (result, position) => {
+type LexerResult = {
+  type: string | null;
+  value: string;
+  position: {
+    start: number | null;
+    end: number | null;
+  };
+};
+
+const fromText = (result: LexerResult, position: number): LexerResult => {
   if (result.value === 'true') {
     return deepmerge(result, {
       type: 'boolean',
@@ -76,13 +84,12 @@ const fromText = (result, position) => {
 };
 
 class NonMatchingApostropheError extends Error {
-  constructor(position) {
+  constructor(position: number) {
     super(`Missing ending quotation started at position ${position}.`);
-    this.position = position;
   }
 }
 
-export const lexer = (text, position) => {
+export const lexer = (text: string, position: number) => {
   if (!text) {
     throw new Error('No text specified.');
   }
@@ -100,7 +107,7 @@ export const lexer = (text, position) => {
   }
 
   let state = 'start';
-  let result = {
+  let result: LexerResult = {
     type: null,
     value: '',
     position: {
@@ -217,7 +224,7 @@ export const lexer = (text, position) => {
             result.value += charAt(position);
 
             if (isLast(position)) {
-              throw new NonMatchingApostropheError(result.position.start);
+              throw new NonMatchingApostropheError(result.position.start ?? 0);
             }
 
             break;

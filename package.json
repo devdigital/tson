@@ -12,7 +12,6 @@
     "build": "nx run-many --target=build"
   },
   "devDependencies": {
-    "@nx/js": "16.9.1",
-    "nx": "16.9.1"
+    "nx": "17.1.2"
   }
 }
