@@ -13,7 +13,8 @@
   },
   "homepage": "https://github.com/devdigital/tson/tree/master/packages/parse#readme",
   "scripts": {
-    "test": "echo No tests",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "build": "tsup",
     "watch": "tsup --watch"
   },
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "tsup": "^7.2.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^0.34.6"
   }
 }
