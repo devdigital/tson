@@ -1,4 +1,4 @@
-const specialCharacters = {
+export const specialCharacters = {
   ':': 'colon',
   ',': 'comma',
   '{': 'brace-left',
@@ -7,5 +7,3 @@ const specialCharacters = {
   ']': 'bracket-right',
   '.': 'period',
 }
-
-export default specialCharacters
