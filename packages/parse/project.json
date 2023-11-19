@@ -3,8 +3,8 @@
     "semantic-release": {
       "executor": "@theunderscorer/nx-semantic-release:semantic-release",
       "options": {
-        "buildTarget": "build",
-        "outputPath": "./dist"
+        "buildTarget": "${PROJECT_NAME}:build",
+        "outputPath": "${PROJECT_DIR}/dist"
       }
     }
   }
