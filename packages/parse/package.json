@@ -1,8 +1,7 @@
 {
   "name": "@tson/parse",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "TSON (Terse Single Object Notation) parser",
-  "private": false,
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
