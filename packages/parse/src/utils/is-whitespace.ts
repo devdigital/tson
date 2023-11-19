@@ -1,5 +1,4 @@
-// TODO: type
-export function isWhitespace(char: any) {
+export function isWhitespace(char: string) {
   if (char == null) {
     throw new Error('No character specified.');
   }
