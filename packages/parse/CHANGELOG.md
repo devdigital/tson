@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/devdigital/tson/compare/parse-v1.0.3...parse-v1.0.4) (2023-11-19)
+
+
+### Bug Fixes
+
+* update settings ([#25](https://github.com/devdigital/tson/issues/25)) ([59c9edd](https://github.com/devdigital/tson/commit/59c9edd047920a39f66480df123a44ebf2e71dd2))
+
 ## [1.0.3](https://github.com/devdigital/tson/compare/parse-v1.0.2...parse-v1.0.3) (2023-11-19)
 
 
