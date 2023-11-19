@@ -1063,7 +1063,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@tson/parse@workspace:packages/parse"
   dependencies:
-    "@theunderscorer/nx-semantic-release": "npm:^2.7.1"
     "@utilz/deepmerge": "npm:^0.1.21"
     "@utilz/types": "npm:^0.1.19"
     tsup: "npm:^7.3.0"
@@ -5756,6 +5755,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root@workspace:."
   dependencies:
+    "@theunderscorer/nx-semantic-release": "npm:^2.7.1"
     nx: "npm:17.1.2"
   languageName: unknown
   linkType: soft
