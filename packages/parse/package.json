@@ -15,9 +15,9 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "build": "tsup && yarn copy-files",
+    "build": "tsup && yarn create-package",
     "watch": "tsup --watch",
-    "copy-files": "cp package.json ./dist"
+    "create-package": "mkdir -p ./output && cp -R ./dist/. ./output/dist && cp package.json ./output"
   },
   "publishConfig": {
     "access": "public"
