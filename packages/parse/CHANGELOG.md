@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/devdigital/tson/compare/parse-v1.0.4...parse-v1.0.5) (2023-11-21)
+
+
+### Bug Fixes
+
+* add output folder ([#26](https://github.com/devdigital/tson/issues/26)) ([09d8de7](https://github.com/devdigital/tson/commit/09d8de710c50544e8aeccaa9911e8decab721049))
+
 ## [1.0.4](https://github.com/devdigital/tson/compare/parse-v1.0.3...parse-v1.0.4) (2023-11-19)
 
 
