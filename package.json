@@ -13,7 +13,7 @@
     "semantic-release": "nx run-many --target=semantic-release --parallel=false"
   },
   "devDependencies": {
-    "@theunderscorer/nx-semantic-release": "^2.7.1",
-    "nx": "17.1.2"
+    "@theunderscorer/nx-semantic-release": "^2.10.0",
+    "nx": "17.2.8"
   }
 }
